@@ -34,6 +34,37 @@
     "type": "global",
     "category": "18+ movie",
     "disabled": false
+  },  {
+    "display_name": "Erome",
+    "value": "erome",
+    "version": "0.1",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": true
+  },
+  {
+    "display_name": "Eporner",
+    "value": "eporner",
+    "version": "0.1",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": true
+  },
+  {
+    "display_name": "Tnaflix",
+    "value": "tnaflix",
+    "version": "0.1",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": true
+  },
+  {
+    "display_name": "SxyPorn",
+    "value": "sxyporn",
+    "version": "0.1",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": true
   }
     
 ]
