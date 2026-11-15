@@ -35,12 +35,16 @@ const getSearchPosts = async function ({ searchQuery, page = 1, signal, provider
     const res = await axios.get(url, { headers: H, signal, timeout: 20000 });
     const $ = cheerio.load(res.data || "");
     const posts = [];
-    $(".thumb-block").each((_, el) => {
-      const a = $(el).find("a").first();
+    const seen = new Set();
+    // Match both thumb-block and any /video. links
+    $(".thumb-block, a[href*='/video.']").each((_, el) => {
+      const a = $(el).is("a") ? $(el) : $(el).find("a").first();
       let link = (a.attr("href") || "").trim();
-      if (!link.includes("/video")) return;
+      if (!link || !link.includes("/video")) return;
       if (link.startsWith("/")) link = BASE + link;
-      const title = $(el).find(".title").text().trim() || "Untitled";
+      if (seen.has(link)) return;
+      seen.add(link);
+      const title = ($(el).find(".title").text() || a.attr("title") || a.find("img").attr("alt") || "Untitled").trim();
       let image = a.find("img").attr("data-src") || a.find("img").attr("src") || "";
       if (image.startsWith("//")) image = "https:" + image;
       posts.push({ title, link, image });
