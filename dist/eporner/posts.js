@@ -1,5 +1,5 @@
 // @vega-provider eporner
-// @vega-version 2.0
+// @vega-version 2.1
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getSearchPosts = exports.getPosts = void 0;
@@ -7,8 +7,7 @@ const getPosts = async function ({ filter, page = 1, signal, providerContext }) 
   try {
     const { axios } = providerContext;
     const BASE = "https://www.eporner.com";
-    const order = filter || "latest";
-    const url = BASE + "/api/v2/video/search/?order=" + encodeURIComponent(order) + "&per_page=30&page=" + page;
+    const url = BASE + "/api/v2/video/search/?order=latest&per_page=30&page=" + page;
     const res = await axios.get(url, { headers: { "User-Agent": "Mozilla/5.0", Accept: "application/json" }, signal, timeout: 20000 });
     let data = res.data;
     if (typeof data === "string") { try { data = JSON.parse(data); } catch { return []; } }

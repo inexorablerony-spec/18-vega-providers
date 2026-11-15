@@ -1,12 +1,7 @@
 // @vega-provider eporner
-// @vega-version 2.0
+// @vega-version 2.1
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.genres = exports.catalog = void 0;
-exports.catalog = [
-  { title: "Latest", filter: "" },
-  { title: "Best", filter: "top-weekly" },
-  { title: "Top Rated", filter: "top-rated" },
-  { title: "Most Viewed", filter: "most-popular" },
-];
+exports.catalog = [{ title: "Latest", filter: "" }];
 exports.genres = [];
