@@ -14,7 +14,6 @@ const getMeta = async function ({ link, providerContext }) {
     const image = $('meta[property="og:image"]').attr("content") || "";
     const links = [];
     const seen = new Set();
-    // Extract mydaddy iframe
     let iframe = $('iframe[src*="mydaddy"]').attr("src") || "";
     if (!iframe) iframe = (html.match(/src="(\/\/mydaddy[^"]+)"/) || [])[1] || "";
     if (iframe) {
@@ -22,26 +21,16 @@ const getMeta = async function ({ link, providerContext }) {
       try {
         const iframeRes = await axios.get(iframeUrl, { headers: { "User-Agent": "Mozilla/5.0", Referer: link }, timeout: 15000 });
         const iframeHtml = String(iframeRes.data || "");
-        // Extract bigcdn.cc MP4s
-        const bigcdn = iframeHtml.match(/\/\/s\d+\.bigcdn\.cc\/[^"'\\\s]+\.mp4/gi) || [];
-        for (const u of bigcdn) {
+        const mp4s = iframeHtml.match(/\/\/[^"'\s]+\.mp4/gi) || [];
+        for (const u of mp4s) {
           const full = "https:" + u.replace(/\\/g, "").replace(/&amp;/g, "&");
-          if (seen.has(full)) continue;
+          if (seen.has(full) || /thumb|preview|tile|main\.jpg/i.test(full)) continue;
           seen.add(full);
-          const quality = full.includes("/1080") ? "1080p" : full.includes("/720") ? "720p" : "360p";
+          const quality = full.includes("/1080") ? "1080p" : full.includes("/720") ? "720p" : full.includes("/360") ? "360p" : "auto";
           links.push({ title: "Play (" + quality + ")", quality: quality, directLinks: [{ title: "MP4", link: full, type: "movie" }] });
         }
       } catch (e) {}
     }
-    // Fallback: any mp4 in main page
-    const mp4s = html.match(/https?:\/\/[^"'\s]+\.mp4/gi) || [];
-    for (const u of mp4s) {
-      const clean = u.replace(/&amp;/g, "&");
-      if (seen.has(clean) || /thumb|preview|sprite/i.test(clean)) continue;
-      seen.add(clean);
-      links.push({ title: "Play", quality: "auto", directLinks: [{ title: "MP4", link: clean, type: "movie" }] });
-    }
-    // Protocol-relative fallback
     const proto = html.match(/\/\/[^"'\s]+\.mp4/gi) || [];
     for (const u of proto) {
       const full = "https:" + u.replace(/&amp;/g, "&");
