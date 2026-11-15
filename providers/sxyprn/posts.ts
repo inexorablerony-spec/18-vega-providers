@@ -9,16 +9,15 @@ export async function getPosts({ filter, page = 1, signal, providerContext }: an
     const $ = cheerio.load(res.data || "");
     const posts: Post[] = [];
     $("a[href*='/post/']").each((_: any, el: any) => {
-      const a = $(el).is("a") ? $(el) : $(el).find("a").first();
-      let link = (a.attr("href") || "").trim();
-      if (!link || !link.includes("/post/")) return;
+      let link = ($(el).attr("href") || "").trim();
+      if (!link.includes("/post/")) return;
       if (link.startsWith("/")) link = BASE + link;
-      const title = ($(el).find(".title, h3, .album-title").text() || a.attr("title") || a.find("img").attr("alt") || "Untitled").trim();
-      let image = a.find("img").attr("data-src") || a.find("img").attr("src") || "";
+      const title = $(el).text().trim() || $(el).find("img").attr("alt") || "Untitled";
+      let image = $(el).find("img").attr("src") || $(el).find("img").attr("data-src") || "";
       if (image.startsWith("//")) image = "https:" + image;
-      posts.push({ title, link, image });
+      if (title && title.length > 2) posts.push({ title, link, image });
     });
-    return posts.slice(0, 60);
+    return posts.slice(0, 50);
   } catch { return []; }
 }
 export async function getSearchPosts({ searchQuery, page = 1, signal, providerContext }: any): Promise<Post[]> {
