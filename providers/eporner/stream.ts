@@ -1,21 +1,39 @@
 import { Stream, ProviderContext } from "../types";
-export const getStream = async function ({ link, providerContext }: { link: string; providerContext?: ProviderContext }): Promise<Stream[]> {
-  if (!link) return [];
-  if (!link.includes(".mp4")) return [];
-  if (link.includes("/dload/") && providerContext) {
-    try {
-      const { axios } = providerContext;
-      const res = await axios.get(link, { 
-        headers: { "User-Agent": "Mozilla/5.0", Referer: "https://www.eporner.com/" }, 
-        maxRedirects: 5,
-        timeout: 15000,
-        validateStatus: () => true
-      });
-      const finalUrl = res.request?.res?.responseUrl || res.config?.url || link;
-      if (finalUrl && finalUrl !== link && finalUrl.includes(".mp4")) {
-        return [{ server: "eporner", link: finalUrl, type: "mp4", headers: { Referer: "https://www.eporner.com/", "User-Agent": "Mozilla/5.0" } }];
-      }
-    } catch {}
+
+const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+
+export const getStream = async function ({
+  link,
+}: {
+  link: string;
+  providerContext?: ProviderContext;
+}): Promise<Stream[]> {
+  if (!link || !/^https?:\/\//i.test(link)) {
+    return [];
   }
-  return [{ server: "eporner", link: link, type: "mp4", headers: { Referer: "https://www.eporner.com/", "User-Agent": "Mozilla/5.0" } }];
+
+  let pathname = link;
+  try {
+    pathname = new URL(link).pathname;
+  } catch {
+    return [];
+  }
+
+  if (!/\.mp4$/i.test(pathname)) {
+    return [];
+  }
+
+  const idMatch = link.match(/\/(?:dwnld|download)\/([a-z0-9]+)/i);
+  const referer = idMatch ? `https://www.eporner.com/embed/${idMatch[1]}` : "https://www.eporner.com/";
+
+  return [{
+    server: "eporner",
+    link,
+    type: "mp4",
+    headers: {
+      Referer: referer,
+      "User-Agent": UA,
+      Accept: "*/*",
+    },
+  }];
 };
