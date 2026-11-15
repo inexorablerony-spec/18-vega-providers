@@ -7,6 +7,8 @@ exports.catalog = [
   { title: "Latest", filter: "" },
   { title: "Top", filter: "top" },
   { title: "Top Week", filter: "top/week" },
-  { title: "Top Month", filter: "top/month" },
+  { title: "Lesbian", filter: "category/lesbian" },
+  { title: "Hardcore", filter: "?q=hardcore" },
+  { title: "3some", filter: "category/threesome" },
 ];
 exports.genres = [];

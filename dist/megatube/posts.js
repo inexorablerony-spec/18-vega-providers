@@ -7,10 +7,11 @@ const getPosts = async function ({ filter, page = 1, signal, providerContext }) 
   try {
     const { axios, cheerio } = providerContext;
     const BASE = "https://www.megatube.xxx";
-    const H = { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36", Accept: "text/html" };
+    const H = { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36", Accept: "text/html" };
     let url = BASE + "/";
     if (filter === "most-viewed") url = BASE + "/most-viewed/";
     else if (filter === "top-rated") url = BASE + "/top-rated/";
+    else if (filter && filter.startsWith("categories/")) url = BASE + "/" + filter + "/";
     if (page > 1) url += (url.includes("?") ? "&" : "?") + "page=" + page;
     const res = await axios.get(url, { headers: H, signal, timeout: 20000 });
     const $ = cheerio.load(res.data || "");
@@ -36,7 +37,7 @@ const getSearchPosts = async function ({ searchQuery, page = 1, signal, provider
   try {
     const { axios, cheerio } = providerContext;
     const BASE = "https://www.megatube.xxx";
-    const H = { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36", Accept: "text/html" };
+    const H = { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36", Accept: "text/html" };
     const q = encodeURIComponent(searchQuery).replace(/%20/g, "-");
     const url = BASE + "/search/" + q + "/" + (page > 1 ? "?page=" + page : "");
     const res = await axios.get(url, { headers: H, signal, timeout: 20000 });
