@@ -1,0 +1,14 @@
+// @vega-provider 3movs
+// @vega-version 1.0
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getStream = void 0;
+const getStream = async function ({ link }) {
+  if (!link) return [];
+  const url = link.replace(/&amp;/g, "&");
+  const m = url.match(/_(\d{3,4})p/i);
+  let quality;
+  if (m) { const n = m[1]; quality = n === "2160" ? "2160" : n === "1080" ? "1080" : n === "720" ? "720" : n === "480" ? "480" : "360"; }
+  return [{ server: "3movs", link: url, type: "mp4", quality, headers: { Referer: "https://www.3movs.com/", "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" } }];
+};
+exports.getStream = getStream;

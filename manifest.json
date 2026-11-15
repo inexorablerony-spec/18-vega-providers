@@ -88,5 +88,68 @@
     "type": "global",
     "category": "18+ movie",
     "disabled": false
+  },
+  {
+    "display_name": "3movs",
+    "value": "3movs",
+    "version": "1.0",
+    "icon": "https://www.3movs.com/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
+  },
+  {
+    "display_name": "HellPorno",
+    "value": "hellporno",
+    "version": "1.0",
+    "icon": "https://hellporno.com/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
+  },
+  {
+    "display_name": "AlotPorn",
+    "value": "alotporn",
+    "version": "1.0",
+    "icon": "https://www.alotporn.com/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
+  },
+  {
+    "display_name": "Pornicom",
+    "value": "pornicom",
+    "version": "1.0",
+    "icon": "https://www.pornicom.com/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
+  },
+  {
+    "display_name": "CartoonTube",
+    "value": "cartoontube",
+    "version": "1.0",
+    "icon": "https://www.cartoontube.xxx/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
+  },
+  {
+    "display_name": "BravoTube",
+    "value": "bravotube",
+    "version": "1.0",
+    "icon": "https://bravotube.net/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
+  },
+  {
+    "display_name": "Wankoz",
+    "value": "wankoz",
+    "version": "1.0",
+    "icon": "https://www.wankoz.com/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
   }
 ]
