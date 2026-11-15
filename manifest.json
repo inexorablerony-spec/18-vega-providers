@@ -133,5 +133,23 @@
     "type": "global",
     "category": "18+ movie",
     "disabled": false
+  },
+  {
+    "display_name": "Erome",
+    "value": "erome",
+    "version": "1.0",
+    "icon": "https://www.erome.com/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
+  },
+  {
+    "display_name": "SxyPrn",
+    "value": "sxyprn",
+    "version": "1.0",
+    "icon": "https://sxyprn.com/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
   }
 ]
