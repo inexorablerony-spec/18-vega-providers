@@ -1,4 +1,4 @@
-# adult-nsfw-repo-by-inx
+# nsfw-repo-by-inxhub
 
 A curated collection of adult streaming providers for the Vega app.
 
@@ -17,12 +17,16 @@ npm install
 npm run build
 ```
 
-## nsfw repo by inxhub
+## Use in Vega
 
 Settings → Provider Manager → **+** → enter:
 
 ```
-inexorablerony-spec/adult-nsfw-repo-by-inx
+inexorablerony-spec/nsfw-repo-by-inxhub
 ```
 
 Then refresh. Providers show up under **18+ movie**.
+
+---
+
+nsfw repo by inxhub
