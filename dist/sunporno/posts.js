@@ -1,5 +1,5 @@
 // @vega-provider sunporno
-// @vega-version 1.0
+// @vega-version 1.1
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getSearchPosts = exports.getPosts = void 0;
