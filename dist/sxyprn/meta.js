@@ -1,39 +1,62 @@
 // @vega-provider sxyprn
-// @vega-version 1.0
+// @vega-version 1.1
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getMeta = void 0;
+
+function digitSum(value) {
+  const digits = value.replace(/[^0-9]/g, "");
+  return digits.split("").reduce((sum, digit) => sum + Number(digit), 0);
+}
+
+function resolveVideoUrl(rawPath) {
+  const parts = rawPath.split("/");
+  if (parts.length < 8) return "";
+  const host = "sxyprn.net";
+  const sum6 = digitSum(parts[6]);
+  const sum7 = digitSum(parts[7]);
+  const token = Buffer.from(`${sum6}-${host}-${sum7}`).toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, ".");
+  parts[1] += `5/${token}`;
+  const offset = Number(parts[5]);
+  if (!Number.isFinite(offset)) return "";
+  parts[5] = String(offset - sum6 - sum7);
+  return `https://${host}${parts.join("/")}`;
+}
+
 const getMeta = async function ({ link, providerContext }) {
   const empty = { title: "", synopsis: "", image: "", imdbId: "", type: "movie", linkList: [] };
   try {
     const { axios, cheerio } = providerContext;
-    const res = await axios.get(link, { headers: { "User-Agent": "Mozilla/5.0", Referer: "https://sxyprn.com/" }, timeout: 20000 });
+    const res = await axios.get(link, { headers: { "User-Agent": "Mozilla/5.0", "Referer": "https://sxyprn.com/" }, timeout: 20000 });
     const html = String(res.data || "");
     const $ = cheerio.load(html);
-    const title = $('meta[property="og:title"]').attr("content") || $("title").text().trim() || "SxyPrn Video";
+    const title = $(".PostEditTA").first().text().trim() || $('meta[property="og:title"]').attr("content") || $("title").text().trim() || "SxyPrn Video";
     const image = $('meta[property="og:image"]').attr("content") || "";
-    const links = [];
-    const seen = new Set();
-    $("video, video source").each((_, el) => {
-      const node = $(el);
-      const candidates = [node.attr("src"), node.attr("data-src")];
-      for (const candidate of candidates) {
-        if (!candidate) continue;
-        let url = candidate.trim();
-        if (url.startsWith("//")) url = "https:" + url;
-        if (url.startsWith("/")) url = new URL(url, link).toString();
-        if (!/^https?:\/\//i.test(url) || !/\.mp4(?:$|[?#])/i.test(url) || seen.has(url)) continue;
-        seen.add(url);
-        links.push({ title: "Play", quality: "auto", directLinks: [{ title: "MP4", link: url, type: "movie" }] });
-      }
+    const match = new URL(link).pathname.match(/\/post\/([^/.]+)/i);
+    const activeId = match ? match[1] : "";
+    let rawPath = "";
+    $(".vidsnfo[data-vnfo]").each((_, el) => {
+      if (rawPath) return;
+      const raw = $(el).attr("data-vnfo");
+      if (!raw) return;
+      try {
+        const data = JSON.parse(raw);
+        if (activeId && data[activeId]) rawPath = data[activeId];
+        else {
+          const ids = Object.keys(data);
+          if (ids.length) rawPath = data[ids[0]];
+        }
+      } catch {}
     });
-    const mp4s = html.match(/https?:\/\/[^"'\s]+\.mp4[^"'\s]*/gi) || [];
-    for (const u of mp4s) {
-      if (seen.has(u) || /thumb|preview/i.test(u)) continue;
-      seen.add(u);
-      links.push({ title: "Play", quality: "auto", directLinks: [{ title: "MP4", link: u, type: "movie" }] });
+    let videoUrl = rawPath ? resolveVideoUrl(rawPath) : "";
+    if (!videoUrl) {
+      const player = $("#player_el, video.player_el").first();
+      const direct = player.attr("data-puri") || player.attr("src") || player.find("source").first().attr("src") || "";
+      if (direct) videoUrl = new URL(direct, link).toString();
     }
-    return { title, synopsis: "", image, imdbId: "", type: "movie", linkList: links };
+    const valid = /^https?:\/\//i.test(videoUrl) && (/\.(?:mp4|vid)(?:$|[?#])/i.test(videoUrl) || /^https?:\/\/[^/]+\/(?:cdn5?|vidi)\//i.test(videoUrl));
+    if (!valid) return { ...empty, title, image };
+    return { title, synopsis: "", image, imdbId: "", type: "movie", linkList: [{ title: "Play", quality: "auto", directLinks: [{ title: "MP4", link: videoUrl, type: "movie" }] }] };
   } catch { return empty; }
 };
 exports.getMeta = getMeta;
