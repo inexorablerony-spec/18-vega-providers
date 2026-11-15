@@ -1,5 +1,5 @@
 // @vega-provider xvideos
-// @vega-version 1.1
+// @vega-version 1.2
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getMeta = void 0;
@@ -17,22 +17,25 @@ const getMeta = async function ({ link, providerContext }) {
     const image = $('meta[property="og:image"]').attr("content") || "";
     const links = [];
     const seen = new Set();
-    // Extract from html5player.setVideoUrlHigh/Low
-    const high = (html.match(/html5player\.setVideoUrlHigh\(['"]([^'"]+)/) || [])[1];
-    const low = (html.match(/html5player\.setVideoUrlLow\(['"]([^'"]+)/) || [])[1];
+    // Extract HLS (signed URL that works)
     const hls = (html.match(/html5player\.setVideoHLS\(['"]([^'"]+)/) || [])[1];
-    for (const [u, q] of [[high, "720p"], [low, "360p"], [hls, "HLS"]]) {
-      if (u && !seen.has(u)) {
-        seen.add(u);
-        links.push({ title: "Play (" + q + ")", quality: q, directLinks: [{ title: "Video", link: u.replace(/&amp;/g, "&"), type: "movie" }] });
-      }
+    if (hls && !seen.has(hls)) {
+      seen.add(hls);
+      links.push({ title: "Play (HLS)", quality: "auto", directLinks: [{ title: "HLS", link: hls.replace(/&amp;/g, "&"), type: "movie" }] });
     }
-    // Fallback: mp4-cdn77
-    const cdn = html.match(/https?:\/\/mp4-cdn77\.xvideos-cdn\.com\/[^"'\s]+\.mp4/gi) || [];
-    for (const u of cdn) {
+    // Extract HLS from hls-cdn77
+    const hlsCdn = html.match(/https?:\/\/hls-cdn77\.xvideos-cdn\.com\/[^"'\s]+\.m3u8/gi) || [];
+    for (const u of hlsCdn) {
       if (seen.has(u)) continue;
       seen.add(u);
-      links.push({ title: "Play", quality: "auto", directLinks: [{ title: "MP4", link: u, type: "movie" }] });
+      links.push({ title: "Play (HLS)", quality: "auto", directLinks: [{ title: "HLS", link: u, type: "movie" }] });
+    }
+    // Fallback MP4 (may be blocked)
+    const mp4 = html.match(/https?:\/\/mp4-cdn77\.xvideos-cdn\.com\/[^"'\s]+\.mp4/gi) || [];
+    for (const u of mp4.slice(0, 1)) {
+      if (seen.has(u)) continue;
+      seen.add(u);
+      links.push({ title: "Play (MP4)", quality: "auto", directLinks: [{ title: "MP4", link: u, type: "movie" }] });
     }
     return { title, synopsis: "", image, imdbId: "", type: "movie", linkList: links };
   } catch { return empty; }
