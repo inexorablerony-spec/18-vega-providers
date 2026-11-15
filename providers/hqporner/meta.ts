@@ -10,27 +10,23 @@ export const getMeta = async function ({ link, providerContext }: { link: string
     const title = $("h1").first().text().trim() || $("title").text().trim() || "Untitled";
     const image = $('meta[property="og:image"]').attr("content") || "";
     const links: Info["linkList"] = [];
-    // Find iframe (mydaddy.cc or similar)
     let iframe = $("iframe").first().attr("src") || "";
     if (iframe.startsWith("//")) iframe = "https:" + iframe;
     if (iframe) {
       try {
         const pr = await axios.get(iframe, { headers: { "User-Agent": UA, Referer: "https://hqporner.com/" }, timeout: 15000 });
         const ph = String(pr.data || "");
-        // Extract video sources from player page
-        const sources = ph.match(/https?:\/\/[^"'\s]+\.(mp4|m3u8)[^"'\s]*/gi) || [];
+        // Extract protocol-relative and absolute mp4 from bigcdn
+        const raw = ph.match(/\/\/[^"'\s]+\.mp4[^"'\s]*/gi) || [];
         const seen = new Set<string>();
-        for (const u of sources) {
-          const clean = u.replace(/&amp;/g, "&").split("?")[0];
-          if (seen.has(clean) || /preview|thumb|sprite|poster/i.test(u)) continue;
+        for (const u of raw) {
+          let url = u.startsWith("//") ? "https:" + u : u;
+          url = url.replace(/&amp;/g, "&");
+          const clean = url.split("?")[0];
+          if (seen.has(clean) || /preview|thumb|sprite|poster/i.test(url)) continue;
           seen.add(clean);
-          links.push({ title: "Play", quality: "auto", directLinks: [{ title: "Video", link: u.replace(/&amp;/g, "&"), type: "movie" }] });
-          if (links.length >= 4) break;
-        }
-        // Also check for video_url style
-        const vu = (ph.match(/video_url['"]?\s*[:=]\s*['"]([^'"]+)/) || [])[1];
-        if (vu && !seen.has(vu.split("?")[0])) {
-          links.push({ title: "Play", quality: "auto", directLinks: [{ title: "Video", link: vu, type: "movie" }] });
+          const q = (url.match(/\/(\d{3,4})\.mp4/i) || [])[1];
+          links.push({ title: q ? "Play (" + q + "p)" : "Play", quality: q ? q + "p" : "auto", directLinks: [{ title: "MP4", link: url, type: "movie" }] });
         }
       } catch {}
     }

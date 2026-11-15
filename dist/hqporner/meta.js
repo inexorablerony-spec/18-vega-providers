@@ -20,14 +20,16 @@ const getMeta = async function ({ link, providerContext }) {
       try {
         const pr = await axios.get(iframe, { headers: { "User-Agent": UA, Referer: "https://hqporner.com/" }, timeout: 15000 });
         const ph = String(pr.data || "");
-        const sources = ph.match(/https?:\/\/[^"'\s]+\.(mp4|m3u8)[^"'\s]*/gi) || [];
+        const raw = ph.match(/\/\/[^"'\s]+\.mp4[^"'\s]*/gi) || [];
         const seen = new Set();
-        for (const u of sources) {
-          const clean = u.replace(/&amp;/g, "&").split("?")[0];
-          if (seen.has(clean) || /preview|thumb|sprite|poster/i.test(u)) continue;
+        for (const u of raw) {
+          let url = u.startsWith("//") ? "https:" + u : u;
+          url = url.replace(/&amp;/g, "&");
+          const clean = url.split("?")[0];
+          if (seen.has(clean) || /preview|thumb|sprite|poster/i.test(url)) continue;
           seen.add(clean);
-          links.push({ title: "Play", quality: "auto", directLinks: [{ title: "Video", link: u.replace(/&amp;/g, "&"), type: "movie" }] });
-          if (links.length >= 4) break;
+          const q = (url.match(/\/(\d{3,4})\.mp4/i) || [])[1];
+          links.push({ title: q ? "Play (" + q + "p)" : "Play", quality: q ? q + "p" : "auto", directLinks: [{ title: "MP4", link: url, type: "movie" }] });
         }
       } catch {}
     }
