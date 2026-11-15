@@ -133,41 +133,5 @@
     "type": "global",
     "category": "18+ movie",
     "disabled": false
-  },
-  {
-    "display_name": "PornHub",
-    "value": "pornhub",
-    "version": "1.2",
-    "icon": "https://www.pornhub.com/favicon.ico",
-    "type": "global",
-    "category": "18+ movie",
-    "disabled": false
-  },
-  {
-    "display_name": "HQPorner 2",
-    "value": "hqporner2",
-    "version": "1.0",
-    "icon": "https://hqporner.com/favicon.ico",
-    "type": "global",
-    "category": "18+ movie",
-    "disabled": false
-  },
-  {
-    "display_name": "Erome",
-    "value": "erome",
-    "version": "1.0",
-    "icon": "https://www.erome.com/favicon.ico",
-    "type": "global",
-    "category": "18+ movie",
-    "disabled": false
-  },
-  {
-    "display_name": "SxyPrn",
-    "value": "sxyprn",
-    "version": "1.0",
-    "icon": "https://sxyprn.com/favicon.ico",
-    "type": "global",
-    "category": "18+ movie",
-    "disabled": false
   }
 ]
