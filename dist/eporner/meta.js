@@ -1,5 +1,5 @@
 // @vega-provider eporner
-// @vega-version 1.6
+// @vega-version 1.7
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getMeta = void 0;
@@ -14,14 +14,33 @@ const getMeta = async function ({ link, providerContext }) {
     const image = $('meta[property="og:image"]').attr("content") || "";
     const links = [];
     const seen = new Set();
-    // Extract dload URLs
+    // Extract dload URLs and follow redirects to get CDN URLs
     const dloads = html.match(/\/dload\/[^"'\s]+\.mp4/gi) || [];
-    for (const u of dloads) {
-      const full = "https://www.eporner.com" + u;
-      if (seen.has(full)) continue;
-      seen.add(full);
-      const quality = u.includes("/1080/") ? "1080p" : u.includes("/720/") ? "720p" : u.includes("/480/") ? "480p" : "360p";
-      links.push({ title: "Play (" + quality + ")", quality: quality, directLinks: [{ title: "MP4", link: full, type: "movie" }] });
+    for (const u of dloads.slice(0, 3)) {
+      const dloadUrl = "https://www.eporner.com" + u;
+      if (seen.has(dloadUrl)) continue;
+      seen.add(dloadUrl);
+      try {
+        // Follow redirect to get CDN URL
+        const dloadRes = await axios.get(dloadUrl, { 
+          headers: { "User-Agent": "Mozilla/5.0", Referer: "https://www.eporner.com/" }, 
+          maxRedirects: 5, 
+          timeout: 15000 
+        });
+        const cdnUrl = dloadRes.request?.res?.responseUrl || dloadRes.request?.responseURL || dloadRes.config?.url;
+        if (cdnUrl && cdnUrl.includes(".mp4") && cdnUrl !== dloadUrl) {
+          const quality = u.includes("/1080/") ? "1080p" : u.includes("/720/") ? "720p" : u.includes("/480/") ? "480p" : "360p";
+          links.push({ title: "Play (" + quality + ")", quality: quality, directLinks: [{ title: "CDN", link: cdnUrl, type: "movie" }] });
+        } else {
+          // Fallback to dload URL
+          const quality = u.includes("/1080/") ? "1080p" : u.includes("/720/") ? "720p" : u.includes("/480/") ? "480p" : "360p";
+          links.push({ title: "Play (" + quality + ")", quality: quality, directLinks: [{ title: "MP4", link: dloadUrl, type: "movie" }] });
+        }
+      } catch {
+        // Fallback to dload URL
+        const quality = u.includes("/1080/") ? "1080p" : u.includes("/720/") ? "720p" : u.includes("/480/") ? "480p" : "360p";
+        links.push({ title: "Play (" + quality + ")", quality: quality, directLinks: [{ title: "MP4", link: dloadUrl, type: "movie" }] });
+      }
     }
     return { title, synopsis: "", image, imdbId: "", type: "movie", linkList: links };
   } catch { return empty; }
