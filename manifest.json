@@ -151,5 +151,14 @@
     "type": "global",
     "category": "18+ movie",
     "disabled": false
+  },
+  {
+    "display_name": "XHamster",
+    "value": "xhamster",
+    "version": "1.0",
+    "icon": "https://xhamster.com/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
   }
 ]
