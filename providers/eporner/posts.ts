@@ -6,12 +6,13 @@ export async function getPosts({ filter, page = 1, signal, providerContext }: an
     const order = filter || "latest";
     const url = BASE + "/api/v2/video/search/?order=" + encodeURIComponent(order) + "&per_page=30&page=" + page;
     const res = await axios.get(url, { headers: { "User-Agent": "Mozilla/5.0", Accept: "application/json" }, signal, timeout: 20000 });
-    const data = res.data || {};
-    const videos = data.videos || [];
+    let data = res.data;
+    if (typeof data === "string") { try { data = JSON.parse(data); } catch { return []; } }
+    const videos = (data && data.videos) || [];
     return videos.map((v: any) => ({
       title: v.title || "Untitled",
       link: v.url || (BASE + "/video-" + v.id + "/"),
-      image: (v.default_thumb && v.default_thumb.src) || (v.thumbs && v.thumbs[0] && v.thumbs[0].src) || "",
+      image: (v.default_thumb && v.default_thumb.src) || "",
     }));
   } catch { return []; }
 }
@@ -20,8 +21,9 @@ export async function getSearchPosts({ searchQuery, page = 1, signal, providerCo
     const { axios } = providerContext;
     const url = BASE + "/api/v2/video/search/?query=" + encodeURIComponent(searchQuery) + "&per_page=30&page=" + page;
     const res = await axios.get(url, { headers: { "User-Agent": "Mozilla/5.0", Accept: "application/json" }, signal, timeout: 20000 });
-    const data = res.data || {};
-    const videos = data.videos || [];
+    let data = res.data;
+    if (typeof data === "string") { try { data = JSON.parse(data); } catch { return []; } }
+    const videos = (data && data.videos) || [];
     return videos.map((v: any) => ({
       title: v.title || "Untitled",
       link: v.url || (BASE + "/video-" + v.id + "/"),
