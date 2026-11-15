@@ -1,5 +1,5 @@
 // @vega-provider sxyprn
-// @vega-version 1.3
+// @vega-version 1.4
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getStream = void 0;

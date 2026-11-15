@@ -1,11 +1,11 @@
 // @vega-provider sxyprn
-// @vega-version 1.3
+// @vega-version 1.4
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getMeta = void 0;
 
 function digitSum(value) {
-  return (value.match(/\d/g) || []).reduce((sum, digit) => sum + Number(digit), 0);
+  return (String(value).match(/[0-9]/g) || []).reduce((sum, digit) => sum + Number(digit), 0);
 }
 
 function resolveVideoUrl(rawPath) {
@@ -14,7 +14,7 @@ function resolveVideoUrl(rawPath) {
   const host = "sxyprn.net";
   const sum6 = digitSum(parts[6]);
   const sum7 = digitSum(parts[7]);
-  const token = Buffer.from(`${sum6}-${host}-${sum7}`).toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, ".");
+  const token = Buffer.from(`${sum6}-${host}-${sum7}`, "utf8").toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, ".");
   parts[1] += `5/${token}`;
   const offset = Number(parts[5]);
   if (!Number.isFinite(offset)) return "";
@@ -27,8 +27,9 @@ const getMeta = async function ({ link, providerContext }) {
   try {
     const { axios, cheerio } = providerContext;
     const res = await axios.get(link, { headers: { "User-Agent": "Mozilla/5.0", "Referer": "https://sxyprn.com/" }, timeout: 20000 });
-    const $ = cheerio.load(String(res.data || ""));
-    const title = $(".PostEditTA").first().text().trim() || $('meta[property="og:title"]').attr("content") || $("title").text().trim() || "SxyPrn Video";
+    const html = String(res.data || "");
+    const $ = cheerio.load(html);
+    const title = $('meta[property="og:title"]').attr("content") || $("title").text().trim() || "SxyPrn Video";
     const image = $('meta[property="og:image"]').attr("content") || "";
     const player = $("#player_el").first();
     const activeId = player.attr("data-postid") || (new URL(link).pathname.match(/\/post\/([^/.]+)/i) || [])[1] || "";
@@ -44,25 +45,17 @@ const getMeta = async function ({ link, providerContext }) {
     let rawPath = "";
     if (activeId) {
       for (const map of maps) {
-        if (typeof map[activeId] === "string") { rawPath = map[activeId]; break; }
+        if (map[activeId]) { rawPath = map[activeId]; break; }
       }
     }
-    if (!rawPath && maps.length === 1) {
-      const ids = Object.keys(maps[0]);
-      if (ids.length === 1) rawPath = maps[0][ids[0]];
+    if (!rawPath && maps.length > 0) {
+      const firstMap = maps[0];
+      const firstId = Object.keys(firstMap)[0];
+      if (firstId) rawPath = firstMap[firstId];
     }
-    let videoUrl = rawPath ? resolveVideoUrl(rawPath) : "";
-    if (!videoUrl) {
-      const candidates = [player.attr("src"), player.attr("data-puri"), player.find("source").first().attr("src")];
-      for (const candidate of candidates) {
-        if (!candidate) continue;
-        const url = new URL(candidate, link).toString();
-        if (/\.vid|\.mp4|\/cdn5?\/|\/vidi\//i.test(url)) { videoUrl = url; break; }
-      }
-    }
-    if (!videoUrl || !/^https?:\/\//i.test(videoUrl) || !/\.vid|\.mp4|\/cdn5?\/|\/vidi\//i.test(videoUrl)) {
-      return { ...empty, title, image };
-    }
+    if (!rawPath) return { ...empty, title, image };
+    const videoUrl = resolveVideoUrl(rawPath);
+    if (!videoUrl || !/^https:\/\//i.test(videoUrl)) return { ...empty, title, image };
     return { title, synopsis: "", image, imdbId: "", type: "movie", linkList: [{ title: "Play", quality: "auto", directLinks: [{ title: "MP4", link: videoUrl, type: "movie" }] }] };
   } catch { return empty; }
 };

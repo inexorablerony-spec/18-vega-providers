@@ -1,7 +1,7 @@
 import { Info, ProviderContext } from "../types";
 
 function digitSum(value: string): number {
-  return (value.match(/\d/g) || [])
+  return (String(value).match(/[0-9]/g) || [])
     .reduce((sum, digit) => sum + Number(digit), 0);
 }
 
@@ -14,7 +14,8 @@ function resolveVideoUrl(rawPath: string): string {
   const sum7 = digitSum(parts[7]);
 
   const token = Buffer.from(
-    `${sum6}-${host}-${sum7}`
+    `${sum6}-${host}-${sum7}`,
+    "utf8"
   ).toString("base64")
     .replace(/\+/g, "-")
     .replace(/\//g, "_")
@@ -57,10 +58,10 @@ export const getMeta = async function ({
       timeout: 20000
     });
 
-    const $ = cheerio.load(String(res.data || ""));
+    const html = String(res.data || "");
+    const $ = cheerio.load(html);
 
     const title =
-      $(".PostEditTA").first().text().trim() ||
       $('meta[property="og:title"]').attr("content") ||
       $("title").text().trim() ||
       "SxyPrn Video";
@@ -92,46 +93,29 @@ export const getMeta = async function ({
 
     if (activeId) {
       for (const map of maps) {
-        if (typeof map[activeId] === "string") {
+        if (map[activeId]) {
           rawPath = map[activeId];
           break;
         }
       }
     }
 
-    if (!rawPath && maps.length === 1) {
-      const ids = Object.keys(maps[0]);
-      if (ids.length === 1) {
-        rawPath = maps[0][ids[0]];
+    if (!rawPath && maps.length > 0) {
+      const firstMap = maps[0];
+      const firstId = Object.keys(firstMap)[0];
+
+      if (firstId) {
+        rawPath = firstMap[firstId];
       }
     }
 
-    let videoUrl = rawPath ? resolveVideoUrl(rawPath) : "";
-
-    if (!videoUrl) {
-      const candidates = [
-        player.attr("src"),
-        player.attr("data-puri"),
-        player.find("source").first().attr("src")
-      ];
-
-      for (const candidate of candidates) {
-        if (!candidate) continue;
-
-        const url = new URL(candidate, link).toString();
-
-        if (/\.vid|\.mp4|\/cdn5?\/|\/vidi\//i.test(url)) {
-          videoUrl = url;
-          break;
-        }
-      }
+    if (!rawPath) {
+      return { ...empty, title, image };
     }
 
-    if (
-      !videoUrl ||
-      !/^https?:\/\//i.test(videoUrl) ||
-      !/\.vid|\.mp4|\/cdn5?\/|\/vidi\//i.test(videoUrl)
-    ) {
+    const videoUrl = resolveVideoUrl(rawPath);
+
+    if (!videoUrl || !/^https:\/\//i.test(videoUrl)) {
       return { ...empty, title, image };
     }
 
@@ -151,6 +135,7 @@ export const getMeta = async function ({
         }]
       }]
     };
+
   } catch {
     return empty;
   }
