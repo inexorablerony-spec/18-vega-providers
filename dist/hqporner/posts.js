@@ -41,7 +41,7 @@ const getSearchPosts = async function ({ searchQuery, page = 1, signal, provider
       if (!link || seen.has(link)) return;
       seen.add(link);
       if (link.startsWith("/")) link = BASE + link;
-      const title = ($(el).attr("title") || $(el).text() || "Untitled").trim();
+      const title = ($(el).attr("title") || $(el).text() || "Untitled").trim().slice(0, 120);
       let image = $(el).find("img").attr("src") || "";
       if (image.startsWith("//")) image = "https:" + image;
       if (title.length > 2) posts.push({ title, link, image });

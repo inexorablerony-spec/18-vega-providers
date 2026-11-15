@@ -36,20 +36,17 @@ const getSearchPosts = async function ({ searchQuery, page = 1, signal, provider
     const $ = cheerio.load(res.data || "");
     const posts = [];
     const seen = new Set();
-    // Match both thumb-block and any /video. links
-    $(".thumb-block, a[href*='/video.']").each((_, el) => {
-      const a = $(el).is("a") ? $(el) : $(el).find("a").first();
-      let link = (a.attr("href") || "").trim();
-      if (!link || !link.includes("/video")) return;
-      if (link.startsWith("/")) link = BASE + link;
-      if (seen.has(link)) return;
+    $("a[href*='/video.']").each((_, el) => {
+      let link = ($(el).attr("href") || "").trim();
+      if (!link || seen.has(link)) return;
       seen.add(link);
-      const title = ($(el).find(".title").text() || a.attr("title") || a.find("img").attr("alt") || "Untitled").trim();
-      let image = a.find("img").attr("data-src") || a.find("img").attr("src") || "";
+      if (link.startsWith("/")) link = BASE + link;
+      const title = ($(el).attr("title") || $(el).find(".title").text() || $(el).text() || "Untitled").trim().slice(0, 120);
+      let image = $(el).find("img").attr("data-src") || $(el).find("img").attr("src") || "";
       if (image.startsWith("//")) image = "https:" + image;
-      posts.push({ title, link, image });
+      if (title.length > 3) posts.push({ title, link, image });
     });
-    return posts.slice(0, 60);
+    return posts.slice(0, 50);
   } catch { return []; }
 };
 exports.getSearchPosts = getSearchPosts;
