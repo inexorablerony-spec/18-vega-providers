@@ -6,7 +6,15 @@ Seventeen sources, rebuilt from scratch with working stream extraction.
 
 ## What's inside
 
-**XVideos · Eporner · HQPorner · TNAFlix · PornHat · SunPorno · MegaTube · YesPornPlease · AlphaPorno · PerfectGirls · 3movs · HellPorno · AlotPorn · BravoTube · Wankoz · Erome · SpankBang**
+**17 working providers**
+
+XVideos · Eporner · HQPorner · TNAFlix · PornHat · SunPorno · MegaTube · YesPornPlease · AlphaPorno · PerfectGirls · 3movs · HellPorno · AlotPorn · BravoTube · Wankoz · Erome · SpankBang
+
+Each provider includes:
+- Video listings
+- Search support
+- Metadata extraction
+- Direct stream playback
 
 ## Build
 
