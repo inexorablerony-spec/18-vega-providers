@@ -1,11 +1,26 @@
 // @vega-provider eporner
-// @vega-version 1.3
+// @vega-version 1.4
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getStream = void 0;
-const getStream = async function ({ link }) {
+const getStream = async function ({ link, providerContext }) {
   if (!link) return [];
   if (!link.includes(".mp4")) return [];
+  if (link.includes("/dload/") && providerContext) {
+    try {
+      const { axios } = providerContext;
+      const res = await axios.get(link, { 
+        headers: { "User-Agent": "Mozilla/5.0", Referer: "https://www.eporner.com/" }, 
+        maxRedirects: 5,
+        timeout: 15000,
+        validateStatus: () => true
+      });
+      const finalUrl = (res.request && res.request.res && res.request.res.responseUrl) || (res.config && res.config.url) || link;
+      if (finalUrl && finalUrl !== link && finalUrl.includes(".mp4")) {
+        return [{ server: "eporner", link: finalUrl, type: "mp4", headers: { Referer: "https://www.eporner.com/", "User-Agent": "Mozilla/5.0" } }];
+      }
+    } catch {}
+  }
   return [{ server: "eporner", link: link, type: "mp4", headers: { Referer: "https://www.eporner.com/", "User-Agent": "Mozilla/5.0" } }];
 };
 exports.getStream = getStream;
