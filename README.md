@@ -17,7 +17,7 @@ npm install
 npm run build
 ```
 
-## Use in Vega
+## nsfw repo by inxhub
 
 Settings → Provider Manager → **+** → enter:
 
