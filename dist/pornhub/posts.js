@@ -1,5 +1,5 @@
 // @vega-provider pornhub
-// @vega-version 1.0
+// @vega-version 1.1
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getSearchPosts = exports.getPosts = void 0;
@@ -8,7 +8,14 @@ const getPosts = async function ({ page = 1, signal, providerContext }) {
     const { axios, cheerio } = providerContext;
     const BASE = "https://www.pornhub.com";
     const url = BASE + "/video?o=mr" + (page > 1 ? "&page=" + page : "");
-    const res = await axios.get(url, { headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" }, signal, timeout: 20000 });
+    const res = await axios.get(url, { 
+      headers: { 
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "Cookie": "age_verified=1; accessAgeDisclaimerPH=1"
+      }, 
+      signal, 
+      timeout: 20000 
+    });
     const $ = cheerio.load(res.data || "");
     const posts = [];
     $("a[href*='view_video']").each((_, el) => {
@@ -29,7 +36,14 @@ const getSearchPosts = async function ({ searchQuery, page = 1, signal, provider
     const { axios, cheerio } = providerContext;
     const BASE = "https://www.pornhub.com";
     const url = BASE + "/video/search?search=" + encodeURIComponent(searchQuery) + (page > 1 ? "&page=" + page : "");
-    const res = await axios.get(url, { headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" }, signal, timeout: 20000 });
+    const res = await axios.get(url, { 
+      headers: { 
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "Cookie": "age_verified=1; accessAgeDisclaimerPH=1"
+      }, 
+      signal, 
+      timeout: 20000 
+    });
     const $ = cheerio.load(res.data || "");
     const posts = [];
     $("a[href*='view_video']").each((_, el) => {

@@ -151,32 +151,5 @@
     "type": "global",
     "category": "18+ movie",
     "disabled": false
-  },
-  {
-    "display_name": "PornKTube",
-    "value": "pornktube",
-    "version": "1.0",
-    "icon": "https://pornktube.tv/favicon.ico",
-    "type": "global",
-    "category": "18+ movie",
-    "disabled": false
-  },
-  {
-    "display_name": "PornWild",
-    "value": "pornwild",
-    "version": "1.0",
-    "icon": "https://pornwild.com/favicon.ico",
-    "type": "global",
-    "category": "18+ movie",
-    "disabled": false
-  },
-  {
-    "display_name": "Porntrex",
-    "value": "porntrex",
-    "version": "1.0",
-    "icon": "https://www.porntrex.com/favicon.ico",
-    "type": "global",
-    "category": "18+ movie",
-    "disabled": false
   }
 ]
