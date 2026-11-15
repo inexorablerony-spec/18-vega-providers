@@ -8,7 +8,7 @@ Built for people who want their tubes in one place, without the usual browser no
 
 Fifteen working providers covering the usual suspects and a few quieter KVS-style tubes. Drop the repo into Vega, refresh, and start browsing.
 
-**XVideos · HQPorner · TNAFlix · PornHat · SunPorno · MegaTube · YesPornPlease · AlphaPorno · Eporner · PerfectGirls · 3movs · HellPorno · AlotPorn · BravoTube · Wankoz**
+**Eporner (turn on warp mode in vega) · HQPorner · TNAFlix · PornHat · SunPorno · MegaTube · YesPornPlease · AlphaPorno · Eporner · PerfectGirls · 3movs · HellPorno · AlotPorn · BravoTube · Wankoz**
 
 ## Build
 
