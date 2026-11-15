@@ -1,5 +1,5 @@
 // @vega-provider sxyprn
-// @vega-version 1.1
+// @vega-version 1.2
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.genres = exports.catalog = void 0;

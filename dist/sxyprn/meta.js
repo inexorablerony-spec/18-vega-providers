@@ -1,16 +1,15 @@
 // @vega-provider sxyprn
-// @vega-version 1.1
+// @vega-version 1.2
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getMeta = void 0;
 
 function digitSum(value) {
-  const digits = value.replace(/[^0-9]/g, "");
-  return digits.split("").reduce((sum, digit) => sum + Number(digit), 0);
+  return (value.match(/\d/g) || []).reduce((sum, digit) => sum + Number(digit), 0);
 }
 
 function resolveVideoUrl(rawPath) {
-  const parts = rawPath.split("/");
+  const parts = String(rawPath).split("/");
   if (parts.length < 8) return "";
   const host = "sxyprn.net";
   const sum6 = digitSum(parts[6]);
@@ -28,34 +27,42 @@ const getMeta = async function ({ link, providerContext }) {
   try {
     const { axios, cheerio } = providerContext;
     const res = await axios.get(link, { headers: { "User-Agent": "Mozilla/5.0", "Referer": "https://sxyprn.com/" }, timeout: 20000 });
-    const html = String(res.data || "");
-    const $ = cheerio.load(html);
+    const $ = cheerio.load(String(res.data || ""));
     const title = $(".PostEditTA").first().text().trim() || $('meta[property="og:title"]').attr("content") || $("title").text().trim() || "SxyPrn Video";
     const image = $('meta[property="og:image"]').attr("content") || "";
-    const match = new URL(link).pathname.match(/\/post\/([^/.]+)/i);
-    const activeId = match ? match[1] : "";
-    let rawPath = "";
+    const player = $("#player_el").first();
+    const activeId = player.attr("data-postid") || (new URL(link).pathname.match(/\/post\/([^/.]+)/i) || [])[1] || "";
+    const maps = [];
     $(".vidsnfo[data-vnfo]").each((_, el) => {
-      if (rawPath) return;
-      const raw = $(el).attr("data-vnfo");
-      if (!raw) return;
       try {
-        const data = JSON.parse(raw);
-        if (activeId && data[activeId]) rawPath = data[activeId];
-        else {
-          const ids = Object.keys(data);
-          if (ids.length) rawPath = data[ids[0]];
-        }
+        const raw = $(el).attr("data-vnfo");
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === "object") maps.push(parsed);
       } catch {}
     });
+    let rawPath = "";
+    if (activeId) {
+      for (const map of maps) {
+        if (typeof map[activeId] === "string") { rawPath = map[activeId]; break; }
+      }
+    }
+    if (!rawPath && maps.length === 1) {
+      const ids = Object.keys(maps[0]);
+      if (ids.length === 1) rawPath = maps[0][ids[0]];
+    }
     let videoUrl = rawPath ? resolveVideoUrl(rawPath) : "";
     if (!videoUrl) {
-      const player = $("#player_el, video.player_el").first();
-      const direct = player.attr("data-puri") || player.attr("src") || player.find("source").first().attr("src") || "";
-      if (direct) videoUrl = new URL(direct, link).toString();
+      const candidates = [player.attr("src"), player.attr("data-puri"), player.find("source").first().attr("src")];
+      for (const candidate of candidates) {
+        if (!candidate) continue;
+        const url = new URL(candidate, link).toString();
+        if (/\.vid|\.mp4|\/cdn5?\/|\/vidi\//i.test(url)) { videoUrl = url; break; }
+      }
     }
-    const valid = /^https?:\/\//i.test(videoUrl) && (/\.(?:mp4|vid)(?:$|[?#])/i.test(videoUrl) || /^https?:\/\/[^/]+\/(?:cdn5?|vidi)\//i.test(videoUrl));
-    if (!valid) return { ...empty, title, image };
+    if (!videoUrl || !/^https?:\/\//i.test(videoUrl) || !/\.vid|\.mp4|\/cdn5?\/|\/vidi\//i.test(videoUrl)) {
+      return { ...empty, title, image };
+    }
     return { title, synopsis: "", image, imdbId: "", type: "movie", linkList: [{ title: "Play", quality: "auto", directLinks: [{ title: "MP4", link: videoUrl, type: "movie" }] }] };
   } catch { return empty; }
 };

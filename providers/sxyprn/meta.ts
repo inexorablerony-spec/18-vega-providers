@@ -1,28 +1,32 @@
 import { Info, ProviderContext } from "../types";
 
 function digitSum(value: string): number {
-  const digits = value.replace(/[^0-9]/g, "");
-  return digits.split("").reduce((sum, digit) => sum + Number(digit), 0);
+  return (value.match(/\d/g) || [])
+    .reduce((sum, digit) => sum + Number(digit), 0);
 }
 
 function resolveVideoUrl(rawPath: string): string {
-  const parts = rawPath.split("/");
+  const parts = String(rawPath).split("/");
   if (parts.length < 8) return "";
 
   const host = "sxyprn.net";
   const sum6 = digitSum(parts[6]);
   const sum7 = digitSum(parts[7]);
 
-  const token = Buffer.from(`${sum6}-${host}-${sum7}`).toString("base64")
+  const token = Buffer.from(
+    `${sum6}-${host}-${sum7}`
+  ).toString("base64")
     .replace(/\+/g, "-")
     .replace(/\//g, "_")
     .replace(/=/g, ".");
 
   parts[1] += `5/${token}`;
+
   const offset = Number(parts[5]);
   if (!Number.isFinite(offset)) return "";
 
   parts[5] = String(offset - sum6 - sum7);
+
   return `https://${host}${parts.join("/")}`;
 }
 
@@ -53,8 +57,7 @@ export const getMeta = async function ({
       timeout: 20000
     });
 
-    const html = String(res.data || "");
-    const $ = cheerio.load(html);
+    const $ = cheerio.load(String(res.data || ""));
 
     const title =
       $(".PostEditTA").first().text().trim() ||
@@ -65,39 +68,70 @@ export const getMeta = async function ({
     const image =
       $('meta[property="og:image"]').attr("content") || "";
 
-    const match = new URL(link).pathname.match(/\/post\/([^/.]+)/i);
-    const activeId = match ? match[1] : "";
+    const player = $("#player_el").first();
+    const activeId =
+      player.attr("data-postid") ||
+      new URL(link).pathname.match(/\/post\/([^/.]+)/i)?.[1] ||
+      "";
 
-    let rawPath = "";
+    const maps: Record<string, string>[] = [];
 
     $(".vidsnfo[data-vnfo]").each((_: any, el: any) => {
-      if (rawPath) return;
-      const raw = $(el).attr("data-vnfo");
-      if (!raw) return;
       try {
-        const data = JSON.parse(raw);
-        if (activeId && data[activeId]) {
-          rawPath = data[activeId];
-        } else {
-          const ids = Object.keys(data);
-          if (ids.length) rawPath = data[ids[0]];
+        const raw = $(el).attr("data-vnfo");
+        if (!raw) return;
+
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === "object") {
+          maps.push(parsed);
         }
       } catch {}
     });
 
-    let videoUrl = rawPath ? resolveVideoUrl(rawPath) : "";
+    let rawPath = "";
 
-    if (!videoUrl) {
-      const player = $("#player_el, video.player_el").first();
-      const direct = player.attr("data-puri") || player.attr("src") || player.find("source").first().attr("src") || "";
-      if (direct) {
-        videoUrl = new URL(direct, link).toString();
+    if (activeId) {
+      for (const map of maps) {
+        if (typeof map[activeId] === "string") {
+          rawPath = map[activeId];
+          break;
+        }
       }
     }
 
-    const valid = /^https?:\/\//i.test(videoUrl) && (/\.(?:mp4|vid)(?:$|[?#])/i.test(videoUrl) || /^https?:\/\/[^/]+\/(?:cdn5?|vidi)\//i.test(videoUrl));
+    if (!rawPath && maps.length === 1) {
+      const ids = Object.keys(maps[0]);
+      if (ids.length === 1) {
+        rawPath = maps[0][ids[0]];
+      }
+    }
 
-    if (!valid) {
+    let videoUrl = rawPath ? resolveVideoUrl(rawPath) : "";
+
+    if (!videoUrl) {
+      const candidates = [
+        player.attr("src"),
+        player.attr("data-puri"),
+        player.find("source").first().attr("src")
+      ];
+
+      for (const candidate of candidates) {
+        if (!candidate) continue;
+
+        const url = new URL(candidate, link).toString();
+
+        if (/\.vid|\.mp4|\/cdn5?\/|\/vidi\//i.test(url)) {
+          videoUrl = url;
+          break;
+        }
+      }
+    }
+
+    if (
+      !videoUrl ||
+      !/^https?:\/\//i.test(videoUrl) ||
+      !/\.vid|\.mp4|\/cdn5?\/|\/vidi\//i.test(videoUrl)
+    ) {
       return { ...empty, title, image };
     }
 
