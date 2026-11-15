@@ -1,14 +1,5 @@
 [
   {
-    "display_name": "TeenXY",
-    "value": "teen",
-    "version": "1.0",
-    "icon": "https://teenxy.com/static/favicon/android-chrome-192x192.png",
-    "type": "global",
-    "category": "18+ movie",
-    "disabled": false
-  },
-  {
     "display_name": "XVideos",
     "value": "xvideos",
     "version": "1.0",
@@ -18,28 +9,10 @@
     "disabled": false
   },
   {
-    "display_name": "XNXX",
-    "value": "xnxx",
-    "version": "1.0",
-    "icon": "https://www.xnxx.com/apple-touch-icon.png",
-    "type": "global",
-    "category": "18+ movie",
-    "disabled": false
-  },
-  {
     "display_name": "Eporner",
     "value": "eporner",
     "version": "1.0",
     "icon": "https://static-ca-cdn.eporner.com/favicon.png",
-    "type": "global",
-    "category": "18+ movie",
-    "disabled": false
-  },
-  {
-    "display_name": "Erome",
-    "value": "erome",
-    "version": "1.0",
-    "icon": "https://www.erome.com/android-chrome-192x192.png",
     "type": "global",
     "category": "18+ movie",
     "disabled": false
@@ -63,24 +36,6 @@
     "disabled": false
   },
   {
-    "display_name": "SxyPorn",
-    "value": "sxyprn",
-    "version": "1.0",
-    "icon": "https://sxyprn.com/favicon.ico",
-    "type": "global",
-    "category": "18+ movie",
-    "disabled": false
-  },
-  {
-    "display_name": "Xozilla",
-    "value": "xozilla",
-    "version": "1.0",
-    "icon": "https://www.xozilla.com/favicon.ico",
-    "type": "global",
-    "category": "18+ movie",
-    "disabled": false
-  },
-  {
     "display_name": "PornHat",
     "value": "pornhat",
     "version": "1.0",
@@ -94,15 +49,6 @@
     "value": "alphaporno",
     "version": "1.0",
     "icon": "https://www.alphaporno.com/favicon.ico",
-    "type": "global",
-    "category": "18+ movie",
-    "disabled": false
-  },
-  {
-    "display_name": "Porn300",
-    "value": "porn300",
-    "version": "1.0",
-    "icon": "https://www.porn300.com/favicon.ico",
     "type": "global",
     "category": "18+ movie",
     "disabled": false
@@ -139,24 +85,6 @@
     "value": "yespornplease",
     "version": "1.0",
     "icon": "https://yespornplease.xxx/favicon.ico",
-    "type": "global",
-    "category": "18+ movie",
-    "disabled": false
-  },
-  {
-    "display_name": "TubeV",
-    "value": "tubev",
-    "version": "1.0",
-    "icon": "https://www.tubev.sex/favicon.ico",
-    "type": "global",
-    "category": "18+ movie",
-    "disabled": false
-  },
-  {
-    "display_name": "XXXTube1",
-    "value": "xxxtube1",
-    "version": "1.0",
-    "icon": "https://www.xxxtube1.com/favicon.ico",
     "type": "global",
     "category": "18+ movie",
     "disabled": false

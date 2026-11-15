@@ -9,12 +9,11 @@ export async function getPosts({ filter, page = 1, signal, providerContext }: an
     const $ = cheerio.load(res.data || "");
     const posts: Post[] = [];
     $("a.video-thumb").each((_: any, el: any) => {
-      const a = $(el).is("a") ? $(el) : $(el).find("a").first();
-      let link = (a.attr("href") || "").trim();
-      if (!link || !link.includes("/video")) return;
+      let link = ($(el).attr("href") || "").trim();
+      if (!link) return;
       if (link.startsWith("/")) link = BASE + link;
-      const title = ($(el).find(".title, h3, .album-title").text() || a.attr("title") || a.find("img").attr("alt") || "Untitled").trim();
-      let image = a.find("img").attr("data-src") || a.find("img").attr("src") || "";
+      const title = $(el).find("img").attr("alt") || "Untitled";
+      let image = $(el).find("img").attr("data-src") || $(el).find("img").attr("src") || "";
       if (image.startsWith("//")) image = "https:" + image;
       posts.push({ title, link, image });
     });
@@ -22,5 +21,21 @@ export async function getPosts({ filter, page = 1, signal, providerContext }: an
   } catch { return []; }
 }
 export async function getSearchPosts({ searchQuery, page = 1, signal, providerContext }: any): Promise<Post[]> {
-  return getPosts({ filter: "", page, signal, providerContext });
+  try {
+    const { axios, cheerio } = providerContext;
+    const url = BASE + "/search.php?what=" + encodeURIComponent(searchQuery) + (page > 1 ? "&page=" + page : "");
+    const res = await axios.get(url, { headers: H, signal, timeout: 20000 });
+    const $ = cheerio.load(res.data || "");
+    const posts: Post[] = [];
+    $("a.video-thumb").each((_: any, el: any) => {
+      let link = ($(el).attr("href") || "").trim();
+      if (!link) return;
+      if (link.startsWith("/")) link = BASE + link;
+      const title = $(el).find("img").attr("alt") || "Untitled";
+      let image = $(el).find("img").attr("data-src") || $(el).find("img").attr("src") || "";
+      if (image.startsWith("//")) image = "https:" + image;
+      posts.push({ title, link, image });
+    });
+    return posts.slice(0, 60);
+  } catch { return []; }
 }
