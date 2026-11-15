@@ -7,37 +7,36 @@ const getMeta = async function ({ link, providerContext }) {
   const empty = { title: "", synopsis: "", image: "", imdbId: "", type: "movie", linkList: [] };
   try {
     const { axios, cheerio } = providerContext;
-    const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
-    const res = await axios.get(link, { headers: { "User-Agent": UA, Referer: "https://hqporner.com/" }, timeout: 25000 });
+    const res = await axios.get(link, { headers: { "User-Agent": "Mozilla/5.0", Referer: "https://hqporner.com/" }, timeout: 20000 });
     const html = String(res.data || "");
     const $ = cheerio.load(html);
     const title = $("h1").first().text().trim() || $("title").text().trim() || "Untitled";
     const image = $('meta[property="og:image"]').attr("content") || "";
     const links = [];
-    // Find mydaddy iframe specifically
-    let iframe = "";
-    $("iframe").each((_, el) => {
-      const src = $(el).attr("src") || "";
-      if (src.includes("mydaddy")) iframe = src;
-    });
-    if (!iframe) iframe = $("iframe").first().attr("src") || "";
-    if (iframe.startsWith("//")) iframe = "https:" + iframe;
+    const seen = new Set();
+    // mydaddy iframe
+    const iframe = $('iframe[src*="mydaddy"]').attr("src") || "";
     if (iframe) {
+      const iframeUrl = iframe.startsWith("//") ? "https:" + iframe : iframe;
       try {
-        const pr = await axios.get(iframe, { headers: { "User-Agent": UA, Referer: link }, timeout: 20000 });
-        const ph = String(pr.data || "");
-        // Match protocol-relative and absolute mp4
-        const raw = ph.match(/\/\/[a-z0-9]+\.bigcdn\.cc\/pubs\/[^"'\s]+\.mp4/gi) || [];
-        const seen = new Set();
-        for (const u of raw) {
-          let url = "https:" + u;
-          const clean = url.split("?")[0];
-          if (seen.has(clean)) continue;
+        const iframeRes = await axios.get(iframeUrl, { headers: { "User-Agent": "Mozilla/5.0", Referer: link }, timeout: 15000 });
+        const iframeHtml = String(iframeRes.data || "");
+        const mp4s = iframeHtml.match(/https?:\/\/[^"'\s]+\.mp4[^"'\s]*/gi) || [];
+        for (const u of mp4s) {
+          const clean = u.replace(/&amp;/g, "&");
+          if (seen.has(clean) || /thumb|preview/i.test(clean)) continue;
           seen.add(clean);
-          const q = (url.match(/\/(\d{3,4})\.mp4/i) || [])[1] || "auto";
-          links.push({ title: "Play (" + q + ")", quality: q, directLinks: [{ title: q + "p", link: url, type: "movie" }] });
+          links.push({ title: "Play", quality: "auto", directLinks: [{ title: "MP4", link: clean, type: "movie" }] });
         }
-      } catch (e) {}
+      } catch {}
+    }
+    // protocol-relative
+    const proto = html.match(/\/\/[^"'\s]+\.mp4[^"'\s]*/gi) || [];
+    for (const u of proto) {
+      const full = "https:" + u.replace(/&amp;/g, "&");
+      if (seen.has(full) || /thumb|preview/i.test(full)) continue;
+      seen.add(full);
+      links.push({ title: "Play", quality: "auto", directLinks: [{ title: "MP4", link: full, type: "movie" }] });
     }
     return { title, synopsis: "", image, imdbId: "", type: "movie", linkList: links };
   } catch { return empty; }

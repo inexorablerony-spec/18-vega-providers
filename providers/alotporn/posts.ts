@@ -1,7 +1,7 @@
 import { Post, ProviderContext } from "../types";
 const BASE = "https://www.alotporn.com";
-const H = { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36", Accept: "text/html" };
-export async function getPosts({ filter, page = 1, signal, providerContext }: any): Promise<Post[]> {
+const H = { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36", Accept: "text/html" };
+export async function getPosts({ page = 1, signal, providerContext }: any): Promise<Post[]> {
   try {
     const { axios, cheerio } = providerContext;
     const url = BASE + "/" + (page > 1 ? "?page=" + page : "");
@@ -16,12 +16,12 @@ export async function getPosts({ filter, page = 1, signal, providerContext }: an
       else if (link.startsWith("/")) link = BASE + link;
       if (!link.includes("/video/")) return;
       seen.add(link);
-      const title = ($(el).attr("title") || $(el).find("img").attr("alt") || $(el).text() || "Untitled").trim().slice(0, 120);
+      const title = ($(el).attr("title") || $(el).find("img").attr("alt") || "Untitled").trim().slice(0, 120);
       let image = $(el).find("img").attr("data-src") || $(el).find("img").attr("src") || "";
       if (image.startsWith("//")) image = "https:" + image;
       if (title.length > 2) posts.push({ title, link, image });
     });
-    return posts.slice(0, 60);
+    return posts.slice(0, 50);
   } catch { return []; }
 }
 export async function getSearchPosts({ searchQuery, page = 1, signal, providerContext }: any): Promise<Post[]> {
@@ -40,7 +40,7 @@ export async function getSearchPosts({ searchQuery, page = 1, signal, providerCo
       else if (link.startsWith("/")) link = BASE + link;
       if (!link.includes("/video/")) return;
       seen.add(link);
-      const title = ($(el).attr("title") || $(el).find("img").attr("alt") || $(el).text() || "Untitled").trim().slice(0, 120);
+      const title = ($(el).attr("title") || $(el).find("img").attr("alt") || "Untitled").trim().slice(0, 120);
       let image = $(el).find("img").attr("data-src") || $(el).find("img").attr("src") || "";
       if (image.startsWith("//")) image = "https:" + image;
       if (title.length > 2) posts.push({ title, link, image });

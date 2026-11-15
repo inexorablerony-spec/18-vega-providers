@@ -1,9 +1,9 @@
 // @vega-provider eporner
-// @vega-version 2.1
+// @vega-version 1.0
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getSearchPosts = exports.getPosts = void 0;
-const getPosts = async function ({ filter, page = 1, signal, providerContext }) {
+const getPosts = async function ({ page = 1, signal, providerContext }) {
   try {
     const { axios } = providerContext;
     const BASE = "https://www.eporner.com";

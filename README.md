@@ -2,13 +2,11 @@
 
 A curated collection of adult streaming providers for the Vega app.
 
-Built for people who want their tubes in one place, without the usual browser noise. Fifteen sources, wired up and ready.
+Fifteen sources, rebuilt from scratch with working stream extraction.
 
 ## What's inside
 
-Fifteen working providers covering the usual suspects and a few quieter KVS-style tubes. Drop the repo into Vega, refresh, and start browsing.
-
-**Eporner (turn on warp mode in vega) · HQPorner · TNAFlix · PornHat · SunPorno · MegaTube · YesPornPlease · AlphaPorno · Eporner · PerfectGirls · 3movs · HellPorno · AlotPorn · BravoTube · Wankoz**
+**XVideos · Eporner · HQPorner · TNAFlix · PornHat · SunPorno · MegaTube · YesPornPlease · AlphaPorno · PerfectGirls · 3movs · HellPorno · AlotPorn · BravoTube · Wankoz**
 
 ## Build
 

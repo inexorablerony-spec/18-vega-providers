@@ -1,18 +1,14 @@
 // @vega-provider sunporno
-// @vega-version 1.1
+// @vega-version 1.0
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getSearchPosts = exports.getPosts = void 0;
-const getPosts = async function ({ filter, page = 1, signal, providerContext }) {
+const getPosts = async function ({ page = 1, signal, providerContext }) {
   try {
     const { axios, cheerio } = providerContext;
     const BASE = "https://www.sunporno.com";
     const H = { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36", Accept: "text/html" };
-    let url = BASE + "/";
-    if (filter === "most-viewed") url = BASE + "/most-viewed/";
-    else if (filter === "top-rated") url = BASE + "/top-rated/";
-    else if (filter && filter.startsWith("categories/")) url = BASE + "/" + filter + "/";
-    if (page > 1) url += (url.includes("?") ? "&" : "?") + "page=" + page;
+    const url = BASE + "/" + (page > 1 ? "?page=" + page : "");
     const res = await axios.get(url, { headers: H, signal, timeout: 20000 });
     const $ = cheerio.load(res.data || "");
     const posts = [];
@@ -24,12 +20,12 @@ const getPosts = async function ({ filter, page = 1, signal, providerContext }) 
       else if (link.startsWith("/")) link = BASE + link;
       if (!link.includes("/v/")) return;
       seen.add(link);
-      const title = ($(el).attr("title") || $(el).find("img").attr("alt") || $(el).text() || "Untitled").trim().slice(0, 120);
+      const title = ($(el).attr("title") || $(el).find("img").attr("alt") || "Untitled").trim().slice(0, 120);
       let image = $(el).find("img").attr("data-src") || $(el).find("img").attr("src") || "";
       if (image.startsWith("//")) image = "https:" + image;
       if (title.length > 2) posts.push({ title, link, image });
     });
-    return posts.slice(0, 60);
+    return posts.slice(0, 50);
   } catch { return []; }
 };
 exports.getPosts = getPosts;
@@ -51,7 +47,7 @@ const getSearchPosts = async function ({ searchQuery, page = 1, signal, provider
       else if (link.startsWith("/")) link = BASE + link;
       if (!link.includes("/v/")) return;
       seen.add(link);
-      const title = ($(el).attr("title") || $(el).find("img").attr("alt") || $(el).text() || "Untitled").trim().slice(0, 120);
+      const title = ($(el).attr("title") || $(el).find("img").attr("alt") || "Untitled").trim().slice(0, 120);
       let image = $(el).find("img").attr("data-src") || $(el).find("img").attr("src") || "";
       if (image.startsWith("//")) image = "https:" + image;
       if (title.length > 2) posts.push({ title, link, image });

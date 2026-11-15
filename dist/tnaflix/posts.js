@@ -1,29 +1,27 @@
 // @vega-provider tnaflix
-// @vega-version 1.1
+// @vega-version 1.0
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getSearchPosts = exports.getPosts = void 0;
-const getPosts = async function ({ filter, page = 1, signal, providerContext }) {
+const getPosts = async function ({ page = 1, signal, providerContext }) {
   try {
     const { axios, cheerio } = providerContext;
     const BASE = "https://www.tnaflix.com";
     const H = { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36", Accept: "text/html" };
-    let url = BASE + "/";
-    if (filter) url = BASE + "/" + filter;
-    if (page > 1) url += (url.includes("?") ? "&" : "?") + "page=" + page;
+    const url = BASE + "/" + (page > 1 ? "?page=" + page : "");
     const res = await axios.get(url, { headers: H, signal, timeout: 20000 });
     const $ = cheerio.load(res.data || "");
     const posts = [];
-    $("a.video-thumb, a[href*='/video']").each((_, el) => {
+    $("a.video-thumb").each((_, el) => {
       let link = ($(el).attr("href") || "").trim();
-      if (!link || !link.includes("/video")) return;
+      if (!link) return;
       if (link.startsWith("/")) link = BASE + link;
-      const title = $(el).find("img").attr("alt") || $(el).attr("title") || "Untitled";
+      const title = $(el).find("img").attr("alt") || "Untitled";
       let image = $(el).find("img").attr("data-src") || $(el).find("img").attr("src") || "";
       if (image.startsWith("//")) image = "https:" + image;
       posts.push({ title, link, image });
     });
-    return posts.slice(0, 60);
+    return posts.slice(0, 50);
   } catch { return []; }
 };
 exports.getPosts = getPosts;
@@ -45,7 +43,7 @@ const getSearchPosts = async function ({ searchQuery, page = 1, signal, provider
       if (image.startsWith("//")) image = "https:" + image;
       posts.push({ title, link, image });
     });
-    return posts.slice(0, 60);
+    return posts.slice(0, 50);
   } catch { return []; }
 };
 exports.getSearchPosts = getSearchPosts;
