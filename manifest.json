@@ -117,24 +117,6 @@
     "disabled": false
   },
   {
-    "display_name": "Pornicom",
-    "value": "pornicom",
-    "version": "1.0",
-    "icon": "https://www.pornicom.com/favicon.ico",
-    "type": "global",
-    "category": "18+ movie",
-    "disabled": false
-  },
-  {
-    "display_name": "CartoonTube",
-    "value": "cartoontube",
-    "version": "1.0",
-    "icon": "https://www.cartoontube.xxx/favicon.ico",
-    "type": "global",
-    "category": "18+ movie",
-    "disabled": false
-  },
-  {
     "display_name": "BravoTube",
     "value": "bravotube",
     "version": "1.0",

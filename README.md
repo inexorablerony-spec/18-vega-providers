@@ -2,13 +2,13 @@
 
 Adult/NSFW Vega providers by inx.
 
-## Providers (17)
+## Providers (15)
 
 ### Original
 XVideos, HQPorner, TNAFlix, PornHat, SunPorno, MegaTube, YesPornPlease, AlphaPorno, Eporner, PerfectGirls
 
-### New (KVS get_file)
-3movs, HellPorno, AlotPorn, Pornicom, CartoonTube, BravoTube, Wankoz
+### KVS get_file
+3movs, HellPorno, AlotPorn, BravoTube, Wankoz
 
 ## Build
 ```bash
