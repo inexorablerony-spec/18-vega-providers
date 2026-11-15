@@ -133,5 +133,50 @@
     "type": "global",
     "category": "18+ movie",
     "disabled": false
+  },
+  {
+    "display_name": "Eporner Dload",
+    "value": "eporner-dload",
+    "version": "1.0",
+    "icon": "https://www.eporner.com/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
+  },
+  {
+    "display_name": "Eporner GVideo",
+    "value": "eporner-gvideo",
+    "version": "1.0",
+    "icon": "https://www.eporner.com/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
+  },
+  {
+    "display_name": "Eporner Embed",
+    "value": "eporner-embed",
+    "version": "1.0",
+    "icon": "https://www.eporner.com/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
+  },
+  {
+    "display_name": "Eporner API",
+    "value": "eporner-api",
+    "version": "1.0",
+    "icon": "https://www.eporner.com/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
+  },
+  {
+    "display_name": "Eporner CDN",
+    "value": "eporner-cdn",
+    "version": "1.0",
+    "icon": "https://www.eporner.com/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
   }
 ]
