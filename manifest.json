@@ -153,19 +153,10 @@
     "disabled": false
   },
   {
-    "display_name": "XHamster 2",
-    "value": "xhamster2",
-    "version": "1.2",
-    "icon": "https://xhamster.com/favicon.ico",
-    "type": "global",
-    "category": "18+ movie",
-    "disabled": false
-  },
-  {
-    "display_name": "XHamster 3",
-    "value": "xhamster3",
-    "version": "1.2",
-    "icon": "https://xhamster.com/favicon.ico",
+    "display_name": "XHamster",
+    "value": "xhamster",
+    "version": "1.3",
+    "icon": "https://static.xhpingcdn.com/xh-desktop/images/favicon/favicon-v2-180x180.png?v=1",
     "type": "global",
     "category": "18+ movie",
     "disabled": false
