@@ -1,0 +1,7 @@
+{
+  "name": "18-vega-providers",
+  "version": "1.2.0",
+  "scripts": { "build": "node build-simple.js" },
+  "devDependencies": { "typescript": "^5.4.0" },
+  "dependencies": { "axios": "^1.7.0", "cheerio": "^1.0.0-rc.12" }
+}
