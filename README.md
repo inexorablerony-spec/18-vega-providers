@@ -1,12 +1,35 @@
-# 18-vega-providers
+# adult-nsfw-repo-by-inx
 
-Adult-only Vega providers (18 sites).
+Adult/NSFW Vega providers by inx.
 
-## Providers
-TeenXY, XVideos, XNXX, Eporner, Erome, HQPorner, TNAFlix, SxyPorn, Xozilla, PornHat, AlphaPorno, Porn300, PerfectGirls, SunPorno, MegaTube, YesPornPlease, TubeV, XXXTube1
+## Providers (10)
+
+| Provider | Search |
+|----------|--------|
+| XVideos | Yes |
+| HQPorner | Yes |
+| TNAFlix | Yes |
+| PornHat | Yes |
+| SunPorno | Yes |
+| MegaTube | Yes |
+| YesPornPlease | Yes |
+| AlphaPorno | Yes |
+| Eporner | Geo-blocked |
+| PerfectGirls | Limited |
 
 ## Build
-npm install && npm run build
+
+```bash
+npm install
+npm run build
+```
 
 ## Use in Vega
-Settings → Provider Manager → + → inexorablerony-spec
+
+Settings → Provider Manager → **+** → enter:
+
+```
+inexorablerony-spec/adult-nsfw-repo-by-inx
+```
+
+Then refresh. Providers appear under **18+ movie**.
