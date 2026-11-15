@@ -4,7 +4,9 @@ const H = { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit
 export async function getPosts({ filter, page = 1, signal, providerContext }: any): Promise<Post[]> {
   try {
     const { axios, cheerio } = providerContext;
-    const url = BASE + "/" + (page > 1 ? "?page=" + page : "");
+    let url = BASE + "/";
+    if (filter === "toprated") url = BASE + "/toprated";
+    if (page > 1) url += (url.includes("?") ? "&" : "?") + "page=" + page;
     const res = await axios.get(url, { headers: H, signal, timeout: 20000 });
     const $ = cheerio.load(res.data || "");
     const posts: Post[] = [];
