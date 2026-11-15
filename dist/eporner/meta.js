@@ -1,5 +1,5 @@
 // @vega-provider eporner
-// @vega-version 1.2
+// @vega-version 1.3
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getMeta = void 0;
@@ -19,9 +19,23 @@ const getMeta = async function ({ link, providerContext }) {
       seen.add(contentUrl);
       links.push({ title: "Play", quality: "auto", directLinks: [{ title: "MP4", link: contentUrl, type: "movie" }] });
     }
+    const dataVid = $('video').attr("data-vid") || "";
+    if (dataVid && dataVid.includes(".mp4")) {
+      const gvideoUrl = "https://gvideo.eporner.com/" + dataVid;
+      if (!seen.has(gvideoUrl)) {
+        seen.add(gvideoUrl);
+        links.push({ title: "Play", quality: "auto", directLinks: [{ title: "MP4", link: gvideoUrl, type: "movie" }] });
+      }
+    }
     const gvideo = html.match(/https?:\/\/gvideo\.eporner\.com\/[^"'\s]+\.mp4/gi) || [];
     for (const u of gvideo) {
       if (seen.has(u)) continue;
+      seen.add(u);
+      links.push({ title: "Play", quality: "auto", directLinks: [{ title: "MP4", link: u, type: "movie" }] });
+    }
+    const mp4s = html.match(/https?:\/\/[^"'\s]+\.mp4/gi) || [];
+    for (const u of mp4s) {
+      if (seen.has(u) || /thumb|preview|sprite|static/i.test(u)) continue;
       seen.add(u);
       links.push({ title: "Play", quality: "auto", directLinks: [{ title: "MP4", link: u, type: "movie" }] });
     }
