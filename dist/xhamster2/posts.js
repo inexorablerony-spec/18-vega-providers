@@ -1,5 +1,5 @@
 // @vega-provider xhamster2
-// @vega-version 1.1
+// @vega-version 1.2
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getSearchPosts = exports.getPosts = void 0;
