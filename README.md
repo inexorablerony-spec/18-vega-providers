@@ -2,11 +2,11 @@
 
 A curated collection of adult streaming providers for the Vega app.
 
-Fifteen sources, rebuilt from scratch with working stream extraction.
+Seventeen sources, rebuilt from scratch with working stream extraction.
 
 ## What's inside
 
-**XVideos · Eporner · HQPorner · TNAFlix · PornHat · SunPorno · MegaTube · YesPornPlease · AlphaPorno · PerfectGirls · 3movs · HellPorno · AlotPorn · BravoTube · Wankoz**
+**XVideos · Eporner · HQPorner · TNAFlix · PornHat · SunPorno · MegaTube · YesPornPlease · AlphaPorno · PerfectGirls · 3movs · HellPorno · AlotPorn · BravoTube · Wankoz · Erome · SxyPrn**
 
 ## Build
 
