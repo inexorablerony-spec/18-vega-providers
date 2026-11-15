@@ -7,7 +7,7 @@ const getMeta = async function ({ link, providerContext }) {
   const empty = { title: "", synopsis: "", image: "", imdbId: "", type: "movie", linkList: [] };
   try {
     const { axios, cheerio } = providerContext;
-    const res = await axios.get(link, { headers: { "User-Agent": "Mozilla/5.0", "Referer": "https://sxyprn.com/" }, timeout: 20000 });
+    const res = await axios.get(link, { headers: { "User-Agent": "Mozilla/5.0", Referer: "https://sxyprn.com/" }, timeout: 20000 });
     const html = String(res.data || "");
     const $ = cheerio.load(html);
     const title = $('meta[property="og:title"]').attr("content") || $("title").text().trim() || "SxyPrn Video";
