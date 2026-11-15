@@ -12,8 +12,7 @@ const getPosts = async function ({ filter, page = 1, signal, providerContext }) 
     const res = await axios.get(url, { 
       headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36", Accept: "application/json" }, 
       signal, 
-      timeout: 20000,
-      responseType: "json"
+      timeout: 20000
     });
     let data = res.data;
     if (typeof data === "string") {
@@ -26,13 +25,11 @@ const getPosts = async function ({ filter, page = 1, signal, providerContext }) 
       posts.push({
         title: v.title || "Untitled",
         link: v.url || (BASE + "/video-" + v.id + "/"),
-        image: (v.default_thumb && v.default_thumb.src) || (v.thumbs && v.thumbs[0] && v.thumbs[0].src) || "",
+        image: (v.default_thumb && v.default_thumb.src) || "",
       });
     }
     return posts;
-  } catch (e) { 
-    return []; 
-  }
+  } catch { return []; }
 };
 exports.getPosts = getPosts;
 const getSearchPosts = async function ({ searchQuery, page = 1, signal, providerContext }) {
@@ -43,8 +40,7 @@ const getSearchPosts = async function ({ searchQuery, page = 1, signal, provider
     const res = await axios.get(url, { 
       headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36", Accept: "application/json" }, 
       signal, 
-      timeout: 20000,
-      responseType: "json"
+      timeout: 20000
     });
     let data = res.data;
     if (typeof data === "string") {
