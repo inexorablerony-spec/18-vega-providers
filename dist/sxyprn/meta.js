@@ -1,5 +1,5 @@
 // @vega-provider sxyprn
-// @vega-version 1.2
+// @vega-version 1.3
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getMeta = void 0;
