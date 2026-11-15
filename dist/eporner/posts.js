@@ -1,62 +1,55 @@
 // @vega-provider eporner
-// @vega-version 1.0
+// @vega-version 1.1
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getSearchPosts = exports.getPosts = void 0;
 const getPosts = async function ({ filter, page = 1, signal, providerContext }) {
   try {
-    const { axios } = providerContext;
+    const { axios, cheerio } = providerContext;
     const BASE = "https://www.eporner.com";
-    const order = filter || "latest";
-    const url = BASE + "/api/v2/video/search/?order=" + encodeURIComponent(order) + "&per_page=30&page=" + page;
-    const res = await axios.get(url, { 
-      headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36", Accept: "application/json" }, 
-      signal, 
-      timeout: 20000
-    });
-    let data = res.data;
-    if (typeof data === "string") {
-      try { data = JSON.parse(data); } catch { return []; }
-    }
-    const videos = (data && data.videos) || [];
+    const H = { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36", Accept: "text/html" };
+    let url = BASE + "/";
+    if (filter === "best-videos") url = BASE + "/best-videos/";
+    else if (filter === "top-rated") url = BASE + "/top-rated/";
+    if (page > 1) url += (url.includes("?") ? "&" : "?") + "page=" + page;
+    const res = await axios.get(url, { headers: H, signal, timeout: 20000 });
+    const $ = cheerio.load(res.data || "");
     const posts = [];
-    for (const v of videos) {
-      if (!v || !v.id) continue;
-      posts.push({
-        title: v.title || "Untitled",
-        link: v.url || (BASE + "/video-" + v.id + "/"),
-        image: (v.default_thumb && v.default_thumb.src) || "",
-      });
-    }
-    return posts;
+    const seen = new Set();
+    $("a[href*='/video-'], a[href*='/hd-porn/']").each((_, el) => {
+      let link = ($(el).attr("href") || "").trim();
+      if (!link || seen.has(link)) return;
+      if (link.startsWith("/")) link = BASE + link;
+      if (!link.includes("/video-") && !link.includes("/hd-porn/")) return;
+      seen.add(link);
+      const title = ($(el).attr("title") || $(el).find("img").attr("alt") || $(el).text() || "Untitled").trim().slice(0, 120);
+      let image = $(el).find("img").attr("data-src") || $(el).find("img").attr("src") || "";
+      if (image.startsWith("//")) image = "https:" + image;
+      if (title.length > 2) posts.push({ title, link, image });
+    });
+    return posts.slice(0, 60);
   } catch { return []; }
 };
 exports.getPosts = getPosts;
 const getSearchPosts = async function ({ searchQuery, page = 1, signal, providerContext }) {
   try {
-    const { axios } = providerContext;
+    const { axios, cheerio } = providerContext;
     const BASE = "https://www.eporner.com";
-    const url = BASE + "/api/v2/video/search/?query=" + encodeURIComponent(searchQuery) + "&per_page=30&page=" + page;
-    const res = await axios.get(url, { 
-      headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36", Accept: "application/json" }, 
-      signal, 
-      timeout: 20000
-    });
-    let data = res.data;
-    if (typeof data === "string") {
-      try { data = JSON.parse(data); } catch { return []; }
-    }
-    const videos = (data && data.videos) || [];
+    const H = { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36", Accept: "text/html" };
+    const url = BASE + "/search/" + encodeURIComponent(searchQuery) + "/" + (page > 1 ? "?page=" + page : "");
+    const res = await axios.get(url, { headers: H, signal, timeout: 20000 });
+    const $ = cheerio.load(res.data || "");
     const posts = [];
-    for (const v of videos) {
-      if (!v || !v.id) continue;
-      posts.push({
-        title: v.title || "Untitled",
-        link: v.url || (BASE + "/video-" + v.id + "/"),
-        image: (v.default_thumb && v.default_thumb.src) || "",
-      });
-    }
-    return posts;
+    $("a[href*='/video-']").each((_, el) => {
+      let link = ($(el).attr("href") || "").trim();
+      if (!link) return;
+      if (link.startsWith("/")) link = BASE + link;
+      const title = ($(el).attr("title") || $(el).find("img").attr("alt") || "Untitled").trim();
+      let image = $(el).find("img").attr("data-src") || $(el).find("img").attr("src") || "";
+      if (image.startsWith("//")) image = "https:" + image;
+      posts.push({ title, link, image });
+    });
+    return posts.slice(0, 50);
   } catch { return []; }
 };
 exports.getSearchPosts = getSearchPosts;
