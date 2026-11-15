@@ -1,5 +1,5 @@
 // @vega-provider eporner
-// @vega-version 1.0
+// @vega-version 1.2
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getMeta = void 0;
@@ -7,7 +7,7 @@ const getMeta = async function ({ link, providerContext }) {
   const empty = { title: "", synopsis: "", image: "", imdbId: "", type: "movie", linkList: [] };
   try {
     const { axios, cheerio } = providerContext;
-    const res = await axios.get(link, { headers: { "User-Agent": "Mozilla/5.0", Referer: "https://www.eporner.com/" }, timeout: 20000 });
+    const res = await axios.get(link, { headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36", Referer: "https://www.eporner.com/" }, timeout: 20000 });
     const html = String(res.data || "");
     const $ = cheerio.load(html);
     const title = $("h1").first().text().trim() || $("title").text().trim() || "Untitled";
