@@ -1,37 +1,61 @@
 import { Post, ProviderContext } from "../types";
+
 const BASE = "https://pxp.pink";
-const UA = "Mozilla/5.0";
+const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 
 export async function getPosts({ page = 1, signal, providerContext }: any): Promise<Post[]> {
   try {
     const { axios, cheerio } = providerContext;
-    const url = `${BASE}/videos`;
-    const res = await axios.get(url, { params: { page }, headers: { "User-Agent": UA }, signal, timeout: 20000 });
+    const url = page > 1 ? `${BASE}/?page=${page}` : BASE;
+    const res = await axios.get(url, { headers: { "User-Agent": UA }, signal, timeout: 25000 });
     const $ = cheerio.load(res.data || "");
     const posts: Post[] = [];
-    $("a[href*='/videos/']").each((_: any, el: any) => {
-      const link = $(el).attr("href");
-      const title = $(el).attr("title") || $(el).find("img").attr("alt") || $(el).text().trim() || "Video";
-      const image = $(el).find("img").attr("src") || "";
-      if (link && title) posts.push({ title, link: link.startsWith("http") ? link : BASE + link, image });
+    const seen = new Set<string>();
+
+    $(".item_cont").each((_: any, el: any) => {
+      const $el = $(el);
+      const $a = $el.find("a[href*='/videos/']").first();
+      let link = $a.attr("href") || "";
+      if (!link || seen.has(link)) return;
+      if (link.startsWith("/")) link = BASE + link;
+      seen.add(link);
+
+      const title = $el.find(".item_title").first().text().trim() || $a.attr("title") || "Video";
+      let image = $el.find(".item_img").attr("data-src") || $el.find(".item_img").attr("src") || "";
+      if (image && image.startsWith("/")) image = BASE + image;
+
+      if (title && link) posts.push({ title, link, image });
     });
     return posts.slice(0, 30);
-  } catch { return []; }
+  } catch {
+    return [];
+  }
 }
 
 export async function getSearchPosts({ searchQuery, page = 1, signal, providerContext }: any): Promise<Post[]> {
   try {
     const { axios, cheerio } = providerContext;
-    const url = `${BASE}/search?q=${encodeURIComponent(searchQuery)}`;
-    const res = await axios.get(url, { params: { page }, headers: { "User-Agent": UA }, signal, timeout: 20000 });
+    const url = `${BASE}/search?q=${encodeURIComponent(searchQuery)}&page=${page}`;
+    const res = await axios.get(url, { headers: { "User-Agent": UA }, signal, timeout: 25000 });
     const $ = cheerio.load(res.data || "");
     const posts: Post[] = [];
-    $("a[href*='/videos/']").each((_: any, el: any) => {
-      const link = $(el).attr("href");
-      const title = $(el).attr("title") || $(el).find("img").attr("alt") || "Result";
-      const image = $(el).find("img").attr("src") || "";
-      if (link) posts.push({ title, link: link.startsWith("http") ? link : BASE + link, image });
+    const seen = new Set<string>();
+
+    $(".item_cont").each((_: any, el: any) => {
+      const $el = $(el);
+      const $a = $el.find("a[href*='/videos/']").first();
+      let link = $a.attr("href") || "";
+      if (!link || seen.has(link)) return;
+      if (link.startsWith("/")) link = BASE + link;
+      seen.add(link);
+
+      const title = $el.find(".item_title").first().text().trim() || "Result";
+      let image = $el.find(".item_img").attr("data-src") || $el.find(".item_img").attr("src") || "";
+      if (image && image.startsWith("/")) image = BASE + image;
+      if (title && link) posts.push({ title, link, image });
     });
     return posts.slice(0, 30);
-  } catch { return []; }
+  } catch {
+    return [];
+  }
 }
