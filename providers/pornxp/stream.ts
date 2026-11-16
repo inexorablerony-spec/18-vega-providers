@@ -44,7 +44,7 @@ export const getStream = async function ({
     if (streams.length === 0) {
       const mp4s = html.match(/https?:\/\/[^"'\s]+\.mp4[^"'\s]*/gi) || [];
       const unique = [...new Set(mp4s)];
-      for (const u of unique) {
+      for (const u of unique as string[]) {
         streams.push({
           server: "PornXP",
           link: u,

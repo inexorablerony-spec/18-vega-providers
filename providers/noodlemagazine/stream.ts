@@ -44,7 +44,7 @@ export const getStream = async function ({
     if (streams.length === 0) {
       const media = html.match(/https?:\/\/[^"'\s]+\.(?:mp4|m3u8)[^"'\s]*/gi) || [];
       const unique = [...new Set(media)];
-      for (const u of unique) {
+      for (const u of unique as string[]) {
         streams.push({
           server: "Noodle Magazine",
           link: u,
