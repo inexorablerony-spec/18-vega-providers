@@ -153,15 +153,6 @@
     "disabled": false
   },
   {
-    "display_name": "Noodle Magazine",
-    "value": "noodlemagazine",
-    "version": "1.0",
-    "icon": "https://noodlemagazine.com/favicon.ico",
-    "type": "global",
-    "category": "18+ movie",
-    "disabled": false
-  },
-  {
     "display_name": "PornXP",
     "value": "pornxp",
     "version": "1.0",
@@ -182,42 +173,6 @@
   {
     "display_name": "Noodle Test 1",
     "value": "noodle_test1",
-    "version": "1.0",
-    "icon": "https://noodlemagazine.com/favicon.ico",
-    "type": "global",
-    "category": "18+ movie",
-    "disabled": false
-  },
-  {
-    "display_name": "Noodle Test 2",
-    "value": "noodle_test2",
-    "version": "1.0",
-    "icon": "https://noodlemagazine.com/favicon.ico",
-    "type": "global",
-    "category": "18+ movie",
-    "disabled": false
-  },
-  {
-    "display_name": "Noodle Test 3",
-    "value": "noodle_test3",
-    "version": "1.0",
-    "icon": "https://noodlemagazine.com/favicon.ico",
-    "type": "global",
-    "category": "18+ movie",
-    "disabled": false
-  },
-  {
-    "display_name": "Noodle Test 4",
-    "value": "noodle_test4",
-    "version": "1.0",
-    "icon": "https://noodlemagazine.com/favicon.ico",
-    "type": "global",
-    "category": "18+ movie",
-    "disabled": false
-  },
-  {
-    "display_name": "Noodle Test 5",
-    "value": "noodle_test5",
     "version": "1.0",
     "icon": "https://noodlemagazine.com/favicon.ico",
     "type": "global",
