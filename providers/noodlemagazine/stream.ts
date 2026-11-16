@@ -1,6 +1,42 @@
 import { Stream, ProviderContext } from "../types";
 
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+const BASE = "https://adult.noodlemagazine.com";
+
+function extractPlaylist(html: string): any | null {
+  const start = html.indexOf("window.playlist");
+  if (start === -1) return null;
+  const eq = html.indexOf("=", start);
+  if (eq === -1) return null;
+  const brace = html.indexOf("{", eq);
+  if (brace === -1) return null;
+
+  let depth = 0;
+  let end = brace;
+  for (let i = brace; i < html.length; i++) {
+    if (html[i] === "{") depth++;
+    else if (html[i] === "}") {
+      depth--;
+      if (depth === 0) {
+        end = i + 1;
+        break;
+      }
+    }
+  }
+  try {
+    return JSON.parse(html.slice(brace, end));
+  } catch {
+    return null;
+  }
+}
+
+function resolveUrl(file: string): string {
+  if (!file) return "";
+  if (file.startsWith("http")) return file;
+  if (file.startsWith("//")) return "https:" + file;
+  if (file.startsWith("/")) return BASE + file;
+  return BASE + "/" + file;
+}
 
 export const getStream = async function ({
   link,
@@ -17,41 +53,25 @@ export const getStream = async function ({
     if (!axios) return [];
 
     const res = await axios.get(link, {
-      headers: { "User-Agent": UA, Referer: "https://noodlemagazine.com/" },
+      headers: { "User-Agent": UA, Referer: BASE + "/" },
       timeout: 20000,
     });
     const html = res.data || "";
+    const playlist = extractPlaylist(html);
+    if (!playlist || !Array.isArray(playlist.sources)) return [];
 
-    // Source tags
-    const sourceRe = /<source[^>]+src=["']([^"']+)["'][^>]*(?:title=["']([^"']+)["'])?[^>]*>/gi;
-    let m: RegExpExecArray | null;
-    while ((m = sourceRe.exec(html)) !== null) {
-      let src = m[1];
-      const quality = m[2] || "auto";
-      if (src.startsWith("//")) src = "https:" + src;
-      if (src.startsWith("/")) src = "https://noodlemagazine.com" + src;
-      if (src.includes(".mp4") || src.includes(".m3u8")) {
-        streams.push({
-          server: `Noodle ${quality}`,
-          link: src,
-          type: src.includes(".m3u8") ? "m3u8" : "mp4",
-          headers: { "User-Agent": UA, Referer: "https://noodlemagazine.com/" },
-        });
-      }
-    }
-
-    // Direct mp4/m3u8 in page
-    if (streams.length === 0) {
-      const media = html.match(/https?:\/\/[^"'\s]+\.(?:mp4|m3u8)[^"'\s]*/gi) || [];
-      const unique = [...new Set(media)];
-      for (const u of unique as string[]) {
-        streams.push({
-          server: "Noodle Magazine",
-          link: u,
-          type: u.includes(".m3u8") ? "m3u8" : "mp4",
-          headers: { "User-Agent": UA, Referer: "https://noodlemagazine.com/" },
-        });
-      }
+    for (const source of playlist.sources) {
+      const file = source.file;
+      if (!file) continue;
+      const url = resolveUrl(file);
+      const label = source.label || "auto";
+      const isHls = source.type === "hls" || url.includes(".m3u8");
+      streams.push({
+        server: `Noodle ${label}`,
+        link: url,
+        type: isHls ? "m3u8" : "mp4",
+        headers: { "User-Agent": UA, Referer: BASE + "/" },
+      });
     }
   } catch {}
 
