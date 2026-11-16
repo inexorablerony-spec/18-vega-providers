@@ -1,5 +1,6 @@
-import { Info, ProviderContext } from "../types";
+import { Stream, ProviderContext } from "../types";
 const UA = "Mozilla/5.0";
+const REFERER = "https://sxyprn.com/";
 const BASE = "https://sxyprn.com";
 function ssut51(arg: string): number {
   const str = arg.replace(/[^0-9]/g, "");
@@ -23,8 +24,7 @@ function btoaPure(str: string): string {
   return result;
 }
 function boo(ss: number, es: number): string {
-  const b = btoaPure(ss + "-sxyprn.com-" + es);
-  return b.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, ".");
+  return btoaPure(ss + "-sxyprn.com-" + es).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, ".");
 }
 function transformVid(path: string): string {
   const tmp = path.split("/");
@@ -33,14 +33,14 @@ function transformVid(path: string): string {
   tmp[5] = String(parseInt(tmp[5]) - ssut51(tmp[6]) - ssut51(tmp[7]));
   return tmp.join("/");
 }
-export const getMeta = async function ({ link, providerContext }: { link: string; providerContext: ProviderContext }): Promise<Info> {
+export const getStream = async function ({ link, providerContext }: { link: string; providerContext?: ProviderContext }): Promise<Stream[]> {
+  if (!link) return [];
+  const streams: Stream[] = [];
   try {
-    const { axios } = providerContext;
-    const res = await axios.get(link, { headers: { "User-Agent": UA }, timeout: 15000 });
+    const axios = providerContext?.axios;
+    if (!axios) return [];
+    const res = await axios.get(link, { headers: { "User-Agent": UA, Referer: REFERER }, timeout: 20000 });
     const html = res.data || "";
-    const title = html.match(/<title[^>]*>(.*?)<\/title>/i)?.[1] || "SxyPrn";
-    const image = html.match(/property=["']og:image["'][^>]*content=["']([^"']+)/i)?.[1] || "";
-    const linkList: any[] = [];
     const vnfoMatch = html.match(/data-vnfo=['"]([^'"]+)['"]/);
     if (vnfoMatch) {
       try {
@@ -49,12 +49,18 @@ export const getMeta = async function ({ link, providerContext }: { link: string
           if (typeof path !== "string") continue;
           const transformed = transformVid(path);
           let url = transformed.startsWith("/") ? BASE + transformed : transformed;
-          linkList.push({ title: "Play", quality: "HD", directLinks: [{ title: "Play", link: url, type: "mp4" }] });
+          streams.push({ server: "LL1c Transform", link: url, type: "mp4", headers: { "User-Agent": UA, Referer: REFERER } });
+          try {
+            const redir = await axios.get(url, { headers: { "User-Agent": UA, Referer: REFERER }, maxRedirects: 0, validateStatus: (s: number) => s < 400, timeout: 10000 });
+            const location = redir.headers?.location || "";
+            if (location) {
+              const cdnUrl = location.startsWith("//") ? "https:" + location : location;
+              streams.push({ server: "LL1c CDN", link: cdnUrl, type: "mp4", headers: { "User-Agent": UA, Referer: REFERER } });
+            }
+          } catch {}
         }
       } catch {}
     }
-    return { title, synopsis: "", image, imdbId: "", type: "movie", linkList };
-  } catch {
-    return { title: "", synopsis: "", image: "", imdbId: "", type: "movie", linkList: [] };
-  }
+  } catch {}
+  return streams;
 };

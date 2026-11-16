@@ -180,33 +180,6 @@
     "disabled": false
   },
   {
-    "display_name": "SxyPrn Main",
-    "value": "sxyprn",
-    "version": "1.0",
-    "icon": "https://sxyprn.com/favicon.ico",
-    "type": "global",
-    "category": "18+ movie",
-    "disabled": false
-  },
-  {
-    "display_name": "SxyPrn Test 2",
-    "value": "sxyprn_test2",
-    "version": "1.0",
-    "icon": "https://sxyprn.com/favicon.ico",
-    "type": "global",
-    "category": "18+ movie",
-    "disabled": false
-  },
-  {
-    "display_name": "SxyPrn Test 5",
-    "value": "sxyprn_test5",
-    "version": "1.0",
-    "icon": "https://sxyprn.com/favicon.ico",
-    "type": "global",
-    "category": "18+ movie",
-    "disabled": false
-  },
-  {
     "display_name": "SxyPrn LL1",
     "value": "sxyprn_ll1",
     "version": "1.0",
@@ -216,8 +189,8 @@
     "disabled": false
   },
   {
-    "display_name": "SxyPrn LL2",
-    "value": "sxyprn_ll2",
+    "display_name": "SxyPrn LL1a",
+    "value": "sxyprn_ll1a",
     "version": "1.0",
     "icon": "https://sxyprn.com/favicon.ico",
     "type": "global",
@@ -225,8 +198,17 @@
     "disabled": false
   },
   {
-    "display_name": "SxyPrn LL3",
-    "value": "sxyprn_ll3",
+    "display_name": "SxyPrn LL1b",
+    "value": "sxyprn_ll1b",
+    "version": "1.0",
+    "icon": "https://sxyprn.com/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
+  },
+  {
+    "display_name": "SxyPrn LL1c",
+    "value": "sxyprn_ll1c",
     "version": "1.0",
     "icon": "https://sxyprn.com/favicon.ico",
     "type": "global",

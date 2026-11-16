@@ -9,8 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getMeta = void 0;
+exports.getStream = void 0;
 const UA = "Mozilla/5.0";
+const REFERER = "https://sxyprn.com/";
 const BASE = "https://sxyprn.com";
 function ssut51(arg) {
     const str = arg.replace(/[^0-9]/g, "");
@@ -35,8 +36,7 @@ function btoaPure(str) {
     return result;
 }
 function boo(ss, es) {
-    const b = btoaPure(ss + "-sxyprn.com-" + es);
-    return b.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, ".");
+    return btoaPure(ss + "-sxyprn.com-" + es).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, ".");
 }
 function transformVid(path) {
     const tmp = path.split("/");
@@ -46,16 +46,17 @@ function transformVid(path) {
     tmp[5] = String(parseInt(tmp[5]) - ssut51(tmp[6]) - ssut51(tmp[7]));
     return tmp.join("/");
 }
-const getMeta = function (_a) {
+const getStream = function (_a) {
     return __awaiter(this, arguments, void 0, function* ({ link, providerContext }) {
-        var _b, _c;
+        if (!link)
+            return [];
+        const streams = [];
         try {
-            const { axios } = providerContext;
-            const res = yield axios.get(link, { headers: { "User-Agent": UA }, timeout: 15000 });
+            const axios = providerContext === null || providerContext === void 0 ? void 0 : providerContext.axios;
+            if (!axios)
+                return [];
+            const res = yield axios.get(link, { headers: { "User-Agent": UA, Referer: REFERER }, timeout: 20000 });
             const html = res.data || "";
-            const title = ((_b = html.match(/<title[^>]*>(.*?)<\/title>/i)) === null || _b === void 0 ? void 0 : _b[1]) || "SxyPrn";
-            const image = ((_c = html.match(/property=["']og:image["'][^>]*content=["']([^"']+)/i)) === null || _c === void 0 ? void 0 : _c[1]) || "";
-            const linkList = [];
             const vnfoMatch = html.match(/data-vnfo=['"]([^'"]+)['"]/);
             if (vnfoMatch) {
                 try {
@@ -65,16 +66,14 @@ const getMeta = function (_a) {
                             continue;
                         const transformed = transformVid(path);
                         let url = transformed.startsWith("/") ? BASE + transformed : transformed;
-                        linkList.push({ title: "Play", quality: "HD", directLinks: [{ title: "Play", link: url, type: "mp4" }] });
+                        streams.push({ server: "LL1a", link: url, type: "mp4", headers: { "User-Agent": UA, Referer: REFERER } });
                     }
                 }
-                catch (_d) { }
+                catch (_b) { }
             }
-            return { title, synopsis: "", image, imdbId: "", type: "movie", linkList };
         }
-        catch (_e) {
-            return { title: "", synopsis: "", image: "", imdbId: "", type: "movie", linkList: [] };
-        }
+        catch (_c) { }
+        return streams;
     });
 };
-exports.getMeta = getMeta;
+exports.getStream = getStream;
