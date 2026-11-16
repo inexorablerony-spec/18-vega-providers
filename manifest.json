@@ -178,5 +178,59 @@
     "type": "global",
     "category": "18+ movie",
     "disabled": false
+  },
+  {
+    "display_name": "SxyPrn Main",
+    "value": "sxyprn",
+    "version": "1.0",
+    "icon": "https://sxyprn.com/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
+  },
+  {
+    "display_name": "SxyPrn Test 1",
+    "value": "sxyprn_test1",
+    "version": "1.0",
+    "icon": "https://sxyprn.com/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
+  },
+  {
+    "display_name": "SxyPrn Test 2",
+    "value": "sxyprn_test2",
+    "version": "1.0",
+    "icon": "https://sxyprn.com/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
+  },
+  {
+    "display_name": "SxyPrn Test 3",
+    "value": "sxyprn_test3",
+    "version": "1.0",
+    "icon": "https://sxyprn.com/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
+  },
+  {
+    "display_name": "SxyPrn Test 4",
+    "value": "sxyprn_test4",
+    "version": "1.0",
+    "icon": "https://sxyprn.com/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
+  },
+  {
+    "display_name": "SxyPrn Test 5",
+    "value": "sxyprn_test5",
+    "version": "1.0",
+    "icon": "https://sxyprn.com/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
   }
 ]
