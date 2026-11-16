@@ -205,5 +205,32 @@
     "type": "global",
     "category": "18+ movie",
     "disabled": false
+  },
+  {
+    "display_name": "SxyPrn LL1",
+    "value": "sxyprn_ll1",
+    "version": "1.0",
+    "icon": "https://sxyprn.com/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
+  },
+  {
+    "display_name": "SxyPrn LL2",
+    "value": "sxyprn_ll2",
+    "version": "1.0",
+    "icon": "https://sxyprn.com/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
+  },
+  {
+    "display_name": "SxyPrn LL3",
+    "value": "sxyprn_ll3",
+    "version": "1.0",
+    "icon": "https://sxyprn.com/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
   }
 ]
