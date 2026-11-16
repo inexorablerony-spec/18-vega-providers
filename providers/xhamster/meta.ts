@@ -1,5 +1,7 @@
 import { Info, ProviderContext } from "../types";
 const UA = "Mozilla/5.0";
+const BASE = "https://xhamster.one";
+
 export const getMeta = async function ({ link, providerContext }: { link: string; providerContext: ProviderContext }): Promise<Info> {
   try {
     const { axios } = providerContext;
@@ -8,11 +10,10 @@ export const getMeta = async function ({ link, providerContext }: { link: string
     const title = html.match(/<title[^>]*>(.*?)<\/title>/i)?.[1] || "XHamster";
     const image = html.match(/property=["']og:image["'][^>]*content=["']([^"']+)/i)?.[1] || "";
     const linkList: any[] = [];
-    const matches = html.match(/https?:[^"'\s]+\.(?:mp4|m3u8)[^"'\s]*/gi) || [];
-    for (const url of [...new Set(matches)]) {
-      if ((url as string).includes("thumb") || (url as string).includes("preview")) continue;
-      const type = (url as string).includes(".m3u8") ? "m3u8" : "mp4";
-      linkList.push({ title: "Play", quality: "HD", directLinks: [{ title: "Play", link: url, type }] });
+    const embedMatch = html.match(/xh\.video\/p\/([a-zA-Z0-9]+)/);
+    if (embedMatch) {
+      const embedUrl = `https://xh.video/p/${embedMatch[1]}`;
+      linkList.push({ title: "Play", quality: "HD", directLinks: [{ title: "Play", link: embedUrl, type: "embed" }] });
     }
     return { title, synopsis: "", image, imdbId: "", type: "movie", linkList };
   } catch {

@@ -1,40 +1,53 @@
 import { Post, ProviderContext } from "../types";
-const BASE = "https://xhamster.com";
-const UA = "Mozilla/5.0";
+const BASE = "https://xhamster.one";
+const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
+
 export async function getPosts({ page = 1, signal, providerContext }: any): Promise<Post[]> {
   try {
     const { axios, cheerio } = providerContext;
-    const url = `${BASE}/videos?page=${page || 1}`;
+    const url = page > 1 ? `${BASE}/?page=${page}` : `${BASE}/`;
     const res = await axios.get(url, { headers: { "User-Agent": UA }, signal, timeout: 20000 });
     const $ = cheerio.load(res.data || "");
     const posts: Post[] = [];
-    $("a[href*='/videos/']").each((_: any, el: any) => {
+    const seen = new Set<string>();
+    $(".th").each((_: any, el: any) => {
       const $el = $(el);
-      const link = $el.attr("href");
-      if (!link || link.includes("/videos?")) return;
-      const title = $el.attr("title") || $el.find("img").attr("alt") || "Video";
+      const $link = $el.find("a").first();
+      const link = $link.attr("href");
+      if (!link || !link.includes("/videos/")) return;
+      const fullLink = link.startsWith("http") ? link : BASE + link;
+      if (seen.has(fullLink)) return;
+      seen.add(fullLink);
+      const title = $link.attr("title") || $el.find(".tx").text().trim() || "Video";
       let image = $el.find("img").attr("data-src") || $el.find("img").attr("src") || "";
-      if (image && image.startsWith("//")) image = "https:" + image;
-      if (link && title) posts.push({ title, link: link.startsWith("http") ? link : BASE + link, image });
+      if (image && image.startsWith("/")) image = BASE + image;
+      if (title) posts.push({ title, link: fullLink, image });
     });
     return posts.slice(0, 30);
   } catch { return []; }
 }
+
 export async function getSearchPosts({ searchQuery, page = 1, signal, providerContext }: any): Promise<Post[]> {
   try {
     const { axios, cheerio } = providerContext;
-    const url = `${BASE}/search/${encodeURIComponent(searchQuery)}?page=${page}`;
+    const q = encodeURIComponent(searchQuery);
+    const url = page > 1 ? `${BASE}/search/${q}/${page}` : `${BASE}/search/${q}`;
     const res = await axios.get(url, { headers: { "User-Agent": UA }, signal, timeout: 20000 });
     const $ = cheerio.load(res.data || "");
     const posts: Post[] = [];
-    $("a[href*='/videos/']").each((_: any, el: any) => {
+    const seen = new Set<string>();
+    $(".th").each((_: any, el: any) => {
       const $el = $(el);
-      const link = $el.attr("href");
-      if (!link) return;
-      const title = $el.attr("title") || "Result";
+      const $link = $el.find("a").first();
+      const link = $link.attr("href");
+      if (!link || !link.includes("/videos/")) return;
+      const fullLink = link.startsWith("http") ? link : BASE + link;
+      if (seen.has(fullLink)) return;
+      seen.add(fullLink);
+      const title = $link.attr("title") || $el.find(".tx").text().trim() || "Result";
       let image = $el.find("img").attr("data-src") || $el.find("img").attr("src") || "";
-      if (image && image.startsWith("//")) image = "https:" + image;
-      posts.push({ title, link: link.startsWith("http") ? link : BASE + link, image });
+      if (image && image.startsWith("/")) image = BASE + image;
+      if (title) posts.push({ title, link: fullLink, image });
     });
     return posts.slice(0, 30);
   } catch { return []; }

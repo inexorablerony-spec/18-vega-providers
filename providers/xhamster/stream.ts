@@ -1,25 +1,23 @@
 import { Stream, ProviderContext } from "../types";
 const UA = "Mozilla/5.0";
-const REFERER = "https://xhamster.com/";
+const REFERER = "https://xhamster.one/";
+
 export const getStream = async function ({ link, providerContext }: { link: string; providerContext?: ProviderContext }): Promise<Stream[]> {
   if (!link) return [];
   const streams: Stream[] = [];
-  const seen = new Set<string>();
-  const headers = { "User-Agent": UA, Referer: REFERER };
-  if (/\.(mp4|m3u8)(\?|$)/i.test(link)) {
-    streams.push({ server: "XH Direct", link, type: /\.m3u8/i.test(link) ? "m3u8" : "mp4", headers });
-    return streams;
-  }
   try {
     const axios = providerContext?.axios;
     if (!axios) return [];
-    const res = await axios.get(link, { headers, timeout: 20000 });
+    if (link.includes("xh.video")) {
+      streams.push({ server: "XH Embed", link, type: "embed", headers: { "User-Agent": UA, Referer: REFERER } });
+      return streams;
+    }
+    const res = await axios.get(link, { headers: { "User-Agent": UA, Referer: REFERER }, timeout: 20000 });
     const html = res.data || "";
-    const matches = html.match(/https?:[^"'\s]+\.(?:mp4|m3u8)[^"'\s]*/gi) || [];
-    for (const url of matches as string[]) {
-      if (url.includes("thumb") || url.includes("preview") || seen.has(url)) continue;
-      seen.add(url);
-      streams.push({ server: "XH", link: url, type: /\.m3u8/i.test(url) ? "m3u8" : "mp4", headers });
+    const embedMatch = html.match(/xh\.video\/p\/([a-zA-Z0-9]+)/);
+    if (embedMatch) {
+      const embedUrl = `https://xh.video/p/${embedMatch[1]}`;
+      streams.push({ server: "XH Embed", link: embedUrl, type: "embed", headers: { "User-Agent": UA, Referer: REFERER } });
     }
   } catch {}
   return streams;

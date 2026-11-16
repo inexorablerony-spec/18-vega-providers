@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getMeta = void 0;
 const UA = "Mozilla/5.0";
+const BASE = "https://xhamster.one";
 const getMeta = function (_a) {
     return __awaiter(this, arguments, void 0, function* ({ link, providerContext }) {
         var _b, _c;
@@ -21,12 +22,10 @@ const getMeta = function (_a) {
             const title = ((_b = html.match(/<title[^>]*>(.*?)<\/title>/i)) === null || _b === void 0 ? void 0 : _b[1]) || "XHamster";
             const image = ((_c = html.match(/property=["']og:image["'][^>]*content=["']([^"']+)/i)) === null || _c === void 0 ? void 0 : _c[1]) || "";
             const linkList = [];
-            const matches = html.match(/https?:[^"'\s]+\.(?:mp4|m3u8)[^"'\s]*/gi) || [];
-            for (const url of [...new Set(matches)]) {
-                if (url.includes("thumb") || url.includes("preview"))
-                    continue;
-                const type = url.includes(".m3u8") ? "m3u8" : "mp4";
-                linkList.push({ title: "Play", quality: "HD", directLinks: [{ title: "Play", link: url, type }] });
+            const embedMatch = html.match(/xh\.video\/p\/([a-zA-Z0-9]+)/);
+            if (embedMatch) {
+                const embedUrl = `https://xh.video/p/${embedMatch[1]}`;
+                linkList.push({ title: "Play", quality: "HD", directLinks: [{ title: "Play", link: embedUrl, type: "embed" }] });
             }
             return { title, synopsis: "", image, imdbId: "", type: "movie", linkList };
         }

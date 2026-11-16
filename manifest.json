@@ -189,55 +189,10 @@
     "disabled": false
   },
   {
-    "display_name": "XHamster Main",
+    "display_name": "XHamster",
     "value": "xhamster",
     "version": "1.0",
-    "icon": "https://xhamster.com/favicon.ico",
-    "type": "global",
-    "category": "18+ movie",
-    "disabled": false
-  },
-  {
-    "display_name": "XHamster T1",
-    "value": "xhamster_t1",
-    "version": "1.0",
-    "icon": "https://xhamster.com/favicon.ico",
-    "type": "global",
-    "category": "18+ movie",
-    "disabled": false
-  },
-  {
-    "display_name": "XHamster T2",
-    "value": "xhamster_t2",
-    "version": "1.0",
-    "icon": "https://xhamster.com/favicon.ico",
-    "type": "global",
-    "category": "18+ movie",
-    "disabled": false
-  },
-  {
-    "display_name": "XHamster T3",
-    "value": "xhamster_t3",
-    "version": "1.0",
-    "icon": "https://xhamster.com/favicon.ico",
-    "type": "global",
-    "category": "18+ movie",
-    "disabled": false
-  },
-  {
-    "display_name": "XHamster T4",
-    "value": "xhamster_t4",
-    "version": "1.0",
-    "icon": "https://xhamster.com/favicon.ico",
-    "type": "global",
-    "category": "18+ movie",
-    "disabled": false
-  },
-  {
-    "display_name": "XHamster T5",
-    "value": "xhamster_t5",
-    "version": "1.0",
-    "icon": "https://xhamster.com/favicon.ico",
+    "icon": "https://xhamster.one/favicon.ico",
     "type": "global",
     "category": "18+ movie",
     "disabled": false
