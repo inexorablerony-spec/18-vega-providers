@@ -27,7 +27,7 @@ export const getStream = async function ({
     const matches = html.match(mp4Re) || [];
     const unique = [...new Set(matches)];
 
-    for (const url of unique) {
+    for (const url of unique as string[]) {
       let quality = "auto";
       const fnMatch = url.match(/download_filename=[^&]*_(\d+)[a-z]?\.mp4/i);
       if (fnMatch) quality = fnMatch[1] + "p";
