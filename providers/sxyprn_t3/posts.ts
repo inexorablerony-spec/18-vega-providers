@@ -2,25 +2,31 @@ import { Post, ProviderContext } from "../types";
 const BASE = "https://sxyprn.com";
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
 
+async function getMypornPosts(url: string, axios: any, cheerio: any, signal: any): Promise<Post[]> {
+  const res = await axios.get(url, { headers: { "User-Agent": UA }, signal, timeout: 20000 });
+  const $ = cheerio.load(res.data || "");
+  const posts: Post[] = [];
+  $("a[href*='/t/']").each((_: any, el: any) => {
+    const $el = $(el);
+    const href = $el.attr("href") || "";
+    if (!href.includes("/t/")) return;
+    const title = $el.attr("title") || $el.text().trim() || "Video";
+    const torrentId = href.match(/\/t\/([a-zA-Z0-9]+)/)?.[1] || "";
+    if (torrentId && !posts.find(p => p.link.includes(torrentId))) {
+      posts.push({ title: title.slice(0, 60), link: `https://myporn.club/t/${torrentId}`, image: "" });
+    }
+  });
+  return posts.slice(0, 20);
+}
+
 export async function getPosts({ page = 1, filter, signal, providerContext }: any): Promise<Post[]> {
   try {
     const { axios, cheerio } = providerContext;
-    const isTopSeeded = filter === "top" || filter === "Top Seeded";
-    if (isTopSeeded) {
-      const res = await axios.get("https://myporn.club/ts/hits/week", { headers: { "User-Agent": UA }, signal, timeout: 20000 });
-      const $ = cheerio.load(res.data || "");
-      const posts: Post[] = [];
-      $("a[href*='/t/']").each((_: any, el: any) => {
-        const $el = $(el);
-        const href = $el.attr("href") || "";
-        if (!href.includes("/t/")) return;
-        const title = $el.attr("title") || $el.text().trim() || "Video";
-        const torrentId = href.match(/\/t\/([a-zA-Z0-9]+)/)?.[1] || "";
-        if (torrentId && !posts.find(p => p.link.includes(torrentId))) {
-          posts.push({ title: title.slice(0, 60), link: `https://myporn.club/t/${torrentId}`, image: "" });
-        }
-      });
-      return posts.slice(0, 20);
+    if (filter === "alltime" || filter === "All-Time Seeders") {
+      return await getMypornPosts("https://myporn.club/ts/seeders/alltime", axios, cheerio, signal);
+    }
+    if (filter === "top" || filter === "Weekly Hits" || filter === "Top Seeded") {
+      return await getMypornPosts("https://myporn.club/ts/hits/week", axios, cheerio, signal);
     }
     const url = `${BASE}/trending.html?page=${page || 1}`;
     const res = await axios.get(url, { headers: { "User-Agent": UA }, signal, timeout: 20000 });

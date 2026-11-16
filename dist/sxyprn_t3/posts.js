@@ -13,28 +13,35 @@ exports.getPosts = getPosts;
 exports.getSearchPosts = getSearchPosts;
 const BASE = "https://sxyprn.com";
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
+function getMypornPosts(url, axios, cheerio, signal) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const res = yield axios.get(url, { headers: { "User-Agent": UA }, signal, timeout: 20000 });
+        const $ = cheerio.load(res.data || "");
+        const posts = [];
+        $("a[href*='/t/']").each((_, el) => {
+            var _a;
+            const $el = $(el);
+            const href = $el.attr("href") || "";
+            if (!href.includes("/t/"))
+                return;
+            const title = $el.attr("title") || $el.text().trim() || "Video";
+            const torrentId = ((_a = href.match(/\/t\/([a-zA-Z0-9]+)/)) === null || _a === void 0 ? void 0 : _a[1]) || "";
+            if (torrentId && !posts.find(p => p.link.includes(torrentId))) {
+                posts.push({ title: title.slice(0, 60), link: `https://myporn.club/t/${torrentId}`, image: "" });
+            }
+        });
+        return posts.slice(0, 20);
+    });
+}
 function getPosts(_a) {
     return __awaiter(this, arguments, void 0, function* ({ page = 1, filter, signal, providerContext }) {
         try {
             const { axios, cheerio } = providerContext;
-            const isTopSeeded = filter === "top" || filter === "Top Seeded";
-            if (isTopSeeded) {
-                const res = yield axios.get("https://myporn.club/ts/hits/week", { headers: { "User-Agent": UA }, signal, timeout: 20000 });
-                const $ = cheerio.load(res.data || "");
-                const posts = [];
-                $("a[href*='/t/']").each((_, el) => {
-                    var _a;
-                    const $el = $(el);
-                    const href = $el.attr("href") || "";
-                    if (!href.includes("/t/"))
-                        return;
-                    const title = $el.attr("title") || $el.text().trim() || "Video";
-                    const torrentId = ((_a = href.match(/\/t\/([a-zA-Z0-9]+)/)) === null || _a === void 0 ? void 0 : _a[1]) || "";
-                    if (torrentId && !posts.find(p => p.link.includes(torrentId))) {
-                        posts.push({ title: title.slice(0, 60), link: `https://myporn.club/t/${torrentId}`, image: "" });
-                    }
-                });
-                return posts.slice(0, 20);
+            if (filter === "alltime" || filter === "All-Time Seeders") {
+                return yield getMypornPosts("https://myporn.club/ts/seeders/alltime", axios, cheerio, signal);
+            }
+            if (filter === "top" || filter === "Weekly Hits" || filter === "Top Seeded") {
+                return yield getMypornPosts("https://myporn.club/ts/hits/week", axios, cheerio, signal);
             }
             const url = `${BASE}/trending.html?page=${page || 1}`;
             const res = yield axios.get(url, { headers: { "User-Agent": UA }, signal, timeout: 20000 });
