@@ -10,7 +10,7 @@ Seventeen sources, rebuilt from scratch with working stream extraction.
 
 XVideos · Eporner · HQPorner · TNAFlix · PornHat · SunPorno · MegaTube · YesPornPlease · AlphaPorno · PerfectGirls · 3movs · HellPorno · AlotPorn · BravoTube · Wankoz · Erome · SpankBang
 
-****Always turn on the warp mode before streaming****
+***Always turn on the warp mode before streaming***
 
 Each provider includes:
 - Video listings
