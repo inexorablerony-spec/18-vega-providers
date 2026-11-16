@@ -1,7 +1,20 @@
 import { Post, ProviderContext } from "../types";
 const BASE = "https://sxyprn.com";
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
-export async function getPosts({ page = 1, signal, providerContext }: any): Promise<Post[]> {
+
+async function getSeederCount(postUrl: string, axios: any): Promise<number> {
+  try {
+    const res = await axios.get(postUrl, { headers: { "User-Agent": UA }, timeout: 10000 });
+    const html = res.data || "";
+    const torrentMatch = html.match(/myporn\.club\/t\/([a-zA-Z0-9]+)/);
+    if (!torrentMatch) return 0;
+    const tRes = await axios.get(`https://myporn.club/t/${torrentMatch[1]}`, { headers: { "User-Agent": UA }, timeout: 10000 });
+    const seederMatch = (tRes.data || "").match(/teiv_seeders'>(\d+)/);
+    return seederMatch ? parseInt(seederMatch[1], 10) : 0;
+  } catch { return 0; }
+}
+
+export async function getPosts({ page = 1, filter, signal, providerContext }: any): Promise<Post[]> {
   try {
     const { axios, cheerio } = providerContext;
     const url = page > 1 ? `${BASE}/trending.html?page=${page}` : `${BASE}/trending.html`;
@@ -16,11 +29,20 @@ export async function getPosts({ page = 1, signal, providerContext }: any): Prom
       let image = $el.find("img").attr("data-src") || $el.find("img").attr("src") || "";
       if (image && image.startsWith("//")) image = "https:" + image;
       if (image && image.startsWith("/")) image = BASE + image;
-      posts.push({ title: title.replace(/\s*video$/i, "").trim(), link: link.startsWith("http") ? link : BASE + link, image });
+      const fullLink = link.startsWith("http") ? link : BASE + link.split("?")[0];
+      if (!posts.find(p => p.link === fullLink)) {
+        posts.push({ title: title.replace(/\s*video$/i, "").trim(), link: fullLink, image });
+      }
     });
+    if (filter === "top" && posts.length > 0) {
+      const withSeeders = await Promise.all(posts.slice(0, 10).map(async (p) => ({ ...p, seeders: await getSeederCount(p.link, axios) })));
+      withSeeders.sort((a, b) => b.seeders - a.seeders);
+      return withSeeders.slice(0, 30);
+    }
     return posts.slice(0, 30);
   } catch { return []; }
 }
+
 export async function getSearchPosts({ searchQuery, page = 1, signal, providerContext }: any): Promise<Post[]> {
   try {
     const { axios, cheerio } = providerContext;
@@ -35,7 +57,7 @@ export async function getSearchPosts({ searchQuery, page = 1, signal, providerCo
       const title = $el.attr("aria-label") || $el.attr("title") || "Result";
       let image = $el.find("img").attr("data-src") || $el.find("img").attr("src") || "";
       if (image && image.startsWith("//")) image = "https:" + image;
-      posts.push({ title, link: link.startsWith("http") ? link : BASE + link, image });
+      posts.push({ title, link: link.startsWith("http") ? link : BASE + link.split("?")[0], image });
     });
     return posts.slice(0, 30);
   } catch { return []; }
