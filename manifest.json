@@ -189,8 +189,8 @@
     "disabled": false
   },
   {
-    "display_name": "SxyPrn LL1a",
-    "value": "sxyprn_ll1a",
+    "display_name": "SxyPrn T1",
+    "value": "sxyprn_t1",
     "version": "1.0",
     "icon": "https://sxyprn.com/favicon.ico",
     "type": "global",
@@ -198,8 +198,8 @@
     "disabled": false
   },
   {
-    "display_name": "SxyPrn LL1b",
-    "value": "sxyprn_ll1b",
+    "display_name": "SxyPrn T2",
+    "value": "sxyprn_t2",
     "version": "1.0",
     "icon": "https://sxyprn.com/favicon.ico",
     "type": "global",
@@ -207,8 +207,26 @@
     "disabled": false
   },
   {
-    "display_name": "SxyPrn LL1c",
-    "value": "sxyprn_ll1c",
+    "display_name": "SxyPrn T3",
+    "value": "sxyprn_t3",
+    "version": "1.0",
+    "icon": "https://sxyprn.com/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
+  },
+  {
+    "display_name": "SxyPrn T4",
+    "value": "sxyprn_t4",
+    "version": "1.0",
+    "icon": "https://sxyprn.com/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
+  },
+  {
+    "display_name": "SxyPrn T5",
+    "value": "sxyprn_t5",
     "version": "1.0",
     "icon": "https://sxyprn.com/favicon.ico",
     "type": "global",
