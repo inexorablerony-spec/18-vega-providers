@@ -178,5 +178,50 @@
     "type": "global",
     "category": "18+ movie",
     "disabled": false
+  },
+  {
+    "display_name": "NM Playlist",
+    "value": "noodlemagazine-playlist",
+    "version": "1.0",
+    "icon": "https://noodlemagazine.com/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
+  },
+  {
+    "display_name": "NM Source",
+    "value": "noodlemagazine-source",
+    "version": "1.0",
+    "icon": "https://noodlemagazine.com/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
+  },
+  {
+    "display_name": "NM Direct",
+    "value": "noodlemagazine-direct",
+    "version": "1.0",
+    "icon": "https://noodlemagazine.com/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
+  },
+  {
+    "display_name": "NM Embed",
+    "value": "noodlemagazine-embed",
+    "version": "1.0",
+    "icon": "https://noodlemagazine.com/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
+  },
+  {
+    "display_name": "NM JSON",
+    "value": "noodlemagazine-json",
+    "version": "1.0",
+    "icon": "https://noodlemagazine.com/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
   }
 ]
