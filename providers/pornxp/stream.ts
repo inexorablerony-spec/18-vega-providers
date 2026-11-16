@@ -8,6 +8,6 @@ export async function getStream({ link }: { link: string }): Promise<Stream[]> {
     server: "pornxp",
     link,
     type,
-    headers: { "User-Agent": "Mozilla/5.0", Referer: "https://pornxp.com/" },
+    headers: { "User-Agent": "Mozilla/5.0", Referer: "https://pxp.pink/" },
   }];
 }

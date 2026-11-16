@@ -1,5 +1,5 @@
 import { Post, ProviderContext } from "../types";
-const BASE = "https://wow.xxx";
+const BASE = "https://www.wowxxx.to";
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
 
 export async function getPosts({ page = 1, signal, providerContext }: any): Promise<Post[]> {

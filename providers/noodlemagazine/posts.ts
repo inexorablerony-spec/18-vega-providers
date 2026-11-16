@@ -5,7 +5,7 @@ const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
 export async function getPosts({ page = 1, signal, providerContext }: any): Promise<Post[]> {
   try {
     const { axios, cheerio } = providerContext;
-    const url = page > 1 ? `${BASE}/new-video?p=${page}` : `${BASE}/new-video`;
+    const url = page > 1 ? `${BASE}/home?p=${page}` : `${BASE}/home`;
     const res = await axios.get(url, { headers: { "User-Agent": UA }, signal, timeout: 20000 });
     const $ = cheerio.load(res.data || "");
     const posts: Post[] = [];

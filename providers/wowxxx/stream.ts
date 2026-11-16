@@ -8,6 +8,6 @@ export async function getStream({ link }: { link: string }): Promise<Stream[]> {
     server: "wowxxx",
     link,
     type,
-    headers: { "User-Agent": "Mozilla/5.0", Referer: "https://wow.xxx/" },
+    headers: { "User-Agent": "Mozilla/5.0", Referer: "https://www.wowxxx.to/" },
   }];
 }
