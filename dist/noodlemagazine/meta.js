@@ -9,28 +9,24 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getMeta = getMeta;
-const UA = "Mozilla/5.0";
-function getMeta(_a) {
+exports.getMeta = void 0;
+const getMeta = function (_a) {
     return __awaiter(this, arguments, void 0, function* ({ link, providerContext }) {
+        var _b, _c;
         try {
-            const { axios, cheerio } = providerContext;
-            const res = yield axios.get(link, { headers: { "User-Agent": UA }, timeout: 20000 });
-            const $ = cheerio.load(res.data || "");
-            const title = $("h1").first().text().trim() || $('meta[property="og:title"]').attr("content") || "Video";
-            const image = $('meta[property="og:image"]').attr("content") || "";
-            const synopsis = $('meta[property="og:description"]').attr("content") || "";
+            const { axios } = providerContext;
+            const res = yield axios.get(link, { headers: { "User-Agent": "Mozilla/5.0" }, timeout: 15000 });
+            const html = res.data || "";
+            const title = ((_b = html.match(/<title[^>]*>(.*?)<\/title>/i)) === null || _b === void 0 ? void 0 : _b[1]) || "Noodle Magazine";
+            const image = ((_c = html.match(/property=["']og:image["'][^>]*content=["']([^"']+)/i)) === null || _c === void 0 ? void 0 : _c[1]) || "";
             return {
-                title,
-                synopsis,
-                image,
-                imdbId: "",
-                type: "movie",
+                title, synopsis: "", image, imdbId: "", type: "movie",
                 linkList: [{ title: "Play", quality: "auto", directLinks: [{ title: "Play", link, type: "movie" }] }],
             };
         }
-        catch (_b) {
+        catch (_d) {
             return { title: "", synopsis: "", image: "", imdbId: "", type: "movie", linkList: [] };
         }
     });
-}
+};
+exports.getMeta = getMeta;

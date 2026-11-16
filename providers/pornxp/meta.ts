@@ -1,19 +1,17 @@
 import { Info, ProviderContext } from "../types";
-const UA = "Mozilla/5.0";
 
-export async function getMeta({ link, providerContext }: any): Promise<Info> {
+export const getMeta = async function ({ link, providerContext }: { link: string; providerContext: ProviderContext }): Promise<Info> {
   try {
-    const { axios, cheerio } = providerContext;
-    const res = await axios.get(link, { headers: { "User-Agent": UA }, timeout: 20000 });
-    const $ = cheerio.load(res.data || "");
-    const title = $("h1").first().text().trim() || $('meta[property="og:title"]').attr("content") || "Video";
-    const image = $('meta[property="og:image"]').attr("content") || "";
-    const synopsis = $('meta[property="og:description"]').attr("content") || "";
+    const { axios } = providerContext;
+    const res = await axios.get(link, { headers: { "User-Agent": "Mozilla/5.0" }, timeout: 15000 });
+    const html = res.data || "";
+    const title = html.match(/<title[^>]*>(.*?)<\/title>/i)?.[1] || "PornXP";
+    const image = html.match(/property=["']og:image["'][^>]*content=["']([^"']+)/i)?.[1] || "";
     return {
-      title, synopsis, image, imdbId: "", type: "movie",
+      title, synopsis: "", image, imdbId: "", type: "movie",
       linkList: [{ title: "Play", quality: "auto", directLinks: [{ title: "Play", link, type: "movie" }] }],
     };
   } catch {
     return { title: "", synopsis: "", image: "", imdbId: "", type: "movie", linkList: [] };
   }
-}
+};
