@@ -11,9 +11,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getStream = void 0;
 const UA = "Mozilla/5.0";
-const REFERER = "https://sxyprn.com/";
 const getStream = function (_a) {
     return __awaiter(this, arguments, void 0, function* ({ link, providerContext }) {
+        var _b;
         if (!link)
             return [];
         const streams = [];
@@ -21,21 +21,24 @@ const getStream = function (_a) {
             const axios = providerContext === null || providerContext === void 0 ? void 0 : providerContext.axios;
             if (!axios)
                 return [];
-            const res = yield axios.get(link, { headers: { "User-Agent": UA, Referer: REFERER }, timeout: 20000 });
-            const html = res.data || "";
-            const torrentMatch = html.match(/myporn\.club\/t\/([a-zA-Z0-9]+)/);
-            if (torrentMatch) {
-                const torrentId = torrentMatch[1];
-                const torrentUrl = `https://myporn.club/t/${torrentId}`;
-                try {
-                    const tRes = yield axios.get(torrentUrl, { headers: { "User-Agent": UA }, timeout: 15000 });
-                    const tHtml = tRes.data || "";
-                    const magnetMatch = tHtml.match(/magnet:\?[^"'\s]+/);
-                    if (magnetMatch) {
-                        streams.push({ server: "SxyPrn Torrent", link: magnetMatch[0], type: "torrent", headers: { "User-Agent": UA } });
-                    }
+            let torrentId = "";
+            if (link.includes("myporn.club/t/")) {
+                torrentId = ((_b = link.match(/\/t\/([a-zA-Z0-9]+)/)) === null || _b === void 0 ? void 0 : _b[1]) || "";
+            }
+            else if (link.includes("sxyprn.com")) {
+                const res = yield axios.get(link, { headers: { "User-Agent": UA, Referer: "https://sxyprn.com/" }, timeout: 20000 });
+                const html = res.data || "";
+                const torrentMatch = html.match(/myporn\.club\/t\/([a-zA-Z0-9]+)/);
+                if (torrentMatch)
+                    torrentId = torrentMatch[1];
+            }
+            if (torrentId) {
+                const tRes = yield axios.get(`https://myporn.club/t/${torrentId}`, { headers: { "User-Agent": UA }, timeout: 15000 });
+                const tHtml = tRes.data || "";
+                const magnetMatch = tHtml.match(/magnet:\?[^"'\s]+/);
+                if (magnetMatch) {
+                    streams.push({ server: "SxyPrn Torrent", link: magnetMatch[0], type: "torrent" });
                 }
-                catch (_b) { }
             }
         }
         catch (_c) { }
