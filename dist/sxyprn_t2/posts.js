@@ -13,21 +13,28 @@ exports.getPosts = getPosts;
 exports.getSearchPosts = getSearchPosts;
 const BASE = "https://sxyprn.com";
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
-const TOP_SEEDED = [
-    { title: "Reina OHara Fantasy (46 seeders)", link: "https://sxyprn.com/post/6afb1fb2ac49d.html", image: "" },
-    { title: "Hottest Casting (28 seeders)", link: "https://sxyprn.com/post/6af93c317e9cc.html", image: "" },
-    { title: "Older Woman Group (25 seeders)", link: "https://sxyprn.com/post/6af97c23e37fd.html", image: "" },
-    { title: "Miss Lexa Super Hero (23 seeders)", link: "https://sxyprn.com/post/6afa0b979ff75.html", image: "" },
-    { title: "Angela White Couch (20 seeders)", link: "https://sxyprn.com/post/6afb3d478cf54.html", image: "" },
-    { title: "Lily Phillips (16 seeders)", link: "https://sxyprn.com/post/6afa02ba32335.html", image: "" },
-];
 function getPosts(_a) {
     return __awaiter(this, arguments, void 0, function* ({ page = 1, filter, signal, providerContext }) {
         try {
             const { axios, cheerio } = providerContext;
             const isTopSeeded = filter === "top" || filter === "Top Seeded";
             if (isTopSeeded) {
-                return TOP_SEEDED;
+                const res = yield axios.get("https://myporn.club/ts/hits/week", { headers: { "User-Agent": UA }, signal, timeout: 20000 });
+                const $ = cheerio.load(res.data || "");
+                const posts = [];
+                $("a[href*='/t/']").each((_, el) => {
+                    var _a;
+                    const $el = $(el);
+                    const href = $el.attr("href") || "";
+                    if (!href.includes("/t/"))
+                        return;
+                    const title = $el.attr("title") || $el.text().trim() || "Video";
+                    const torrentId = ((_a = href.match(/\/t\/([a-zA-Z0-9]+)/)) === null || _a === void 0 ? void 0 : _a[1]) || "";
+                    if (torrentId && !posts.find(p => p.link.includes(torrentId))) {
+                        posts.push({ title: title.slice(0, 60), link: `https://myporn.club/t/${torrentId}`, image: "" });
+                    }
+                });
+                return posts.slice(0, 20);
             }
             const url = `${BASE}/trending.html?page=${page || 1}`;
             const res = yield axios.get(url, { headers: { "User-Agent": UA }, signal, timeout: 20000 });
