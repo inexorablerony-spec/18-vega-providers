@@ -223,5 +223,50 @@
     "type": "global",
     "category": "18+ movie",
     "disabled": false
+  },
+  {
+    "display_name": "WX GetFile",
+    "value": "wowxxx-getfile",
+    "version": "1.0",
+    "icon": "https://www.wowxxx.to/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
+  },
+  {
+    "display_name": "WX Source",
+    "value": "wowxxx-source",
+    "version": "1.0",
+    "icon": "https://www.wowxxx.to/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
+  },
+  {
+    "display_name": "WX Direct",
+    "value": "wowxxx-direct",
+    "version": "1.0",
+    "icon": "https://www.wowxxx.to/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
+  },
+  {
+    "display_name": "WX Embed",
+    "value": "wowxxx-embed",
+    "version": "1.0",
+    "icon": "https://www.wowxxx.to/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
+  },
+  {
+    "display_name": "WX Player",
+    "value": "wowxxx-player",
+    "version": "1.0",
+    "icon": "https://www.wowxxx.to/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
   }
 ]
