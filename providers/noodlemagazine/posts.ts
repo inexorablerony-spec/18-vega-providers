@@ -19,7 +19,7 @@ export async function getPosts({ page = 1, signal, providerContext }: any): Prom
       }
     });
     return posts.slice(0, 30);
-  } catch (error: any) { throw new Error(`Listing request failed: ${error?.response?.status || error?.message || String(error)}`); }
+  } catch { return []; }
 }
 
 export async function getSearchPosts({ searchQuery, page = 1, signal, providerContext }: any): Promise<Post[]> {
@@ -36,5 +36,5 @@ export async function getSearchPosts({ searchQuery, page = 1, signal, providerCo
       if (link) posts.push({ title, link: link.startsWith("http") ? link : BASE + link, image });
     });
     return posts.slice(0, 30);
-  } catch (error: any) { throw new Error(`Listing request failed: ${error?.response?.status || error?.message || String(error)}`); }
+  } catch { return []; }
 }
