@@ -2,13 +2,16 @@
 
 A curated collection of adult streaming providers for the Vega app.
 
-Seventeen sources, rebuilt from scratch with working stream extraction.
-
 ## What's inside
 
-**17 working providers**
+**Providers**
 
-XVideos · Eporner · HQPorner · TNAFlix · Erome · SpankBang · PornHat · SunPorno · MegaTube · YesPornPlease · AlphaPorno · PerfectGirls · 3movs · HellPorno · AlotPorn · BravoTube · Wankoz
+XVideos · Eporner · HQPorner · TNAFlix · Erome · SpankBang · PornHat · SunPorno · MegaTube · YesPornPlease · AlphaPorno · PerfectGirls · 3movs · HellPorno · AlotPorn · BravoTube · Wankoz · WowXXX · Noodle Magazine · PornXP
+
+**Added**
+- WowXXX
+- Noodle Magazine
+- PornXP
 
 ****Always turn on the warp mode before streaming****
 
@@ -30,11 +33,5 @@ npm run build
 Settings → Provider Manager → **+** → enter:
 
 ```
-inexorablerony-spec/nsfw-repo-by-inxhub
+https://github.com/inexorablerony-spec/nsfw-repo-by-inxhub
 ```
-
-Then refresh. Providers show up under **18+ movie**.
-
----
-
-nsfw repo by inxhub
