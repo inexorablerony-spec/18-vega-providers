@@ -4,35 +4,37 @@ const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
 const BASE = "https://adult.noodlemagazine.com";
 
 function extractPlaylist(html: string): any | null {
-  const start = html.indexOf("window.playlist");
+  const marker = "window.playlist";
+  const start = html.indexOf(marker);
   if (start === -1) return null;
   const eq = html.indexOf("=", start);
   if (eq === -1) return null;
-  const brace = html.indexOf("{", eq);
-  if (brace === -1) return null;
+  let i = eq + 1;
+  while (i < html.length && /\s/.test(html[i])) i++;
+  if (html[i] !== "{") return null;
 
   let depth = 0;
-  let end = brace;
-  for (let i = brace; i < html.length; i++) {
-    if (html[i] === "{") depth++;
-    else if (html[i] === "}") {
+  const braceStart = i;
+  for (; i < html.length; i++) {
+    const ch = html[i];
+    if (ch === "{") depth++;
+    else if (ch === "}") {
       depth--;
       if (depth === 0) {
-        end = i + 1;
-        break;
+        try {
+          return JSON.parse(html.slice(braceStart, i + 1));
+        } catch {
+          return null;
+        }
       }
     }
   }
-  try {
-    return JSON.parse(html.slice(brace, end));
-  } catch {
-    return null;
-  }
+  return null;
 }
 
 function resolveUrl(file: string): string {
   if (!file) return "";
-  if (file.startsWith("http")) return file;
+  if (/^https?:\/\//i.test(file)) return file;
   if (file.startsWith("//")) return "https:" + file;
   if (file.startsWith("/")) return BASE + file;
   return BASE + "/" + file;
@@ -53,25 +55,49 @@ export const getStream = async function ({
     if (!axios) return [];
 
     const res = await axios.get(link, {
-      headers: { "User-Agent": UA, Referer: BASE + "/" },
-      timeout: 20000,
+      headers: {
+        "User-Agent": UA,
+        Referer: "https://noodlemagazine.com/",
+        Accept: "text/html,application/xhtml+xml",
+      },
+      timeout: 25000,
     });
     const html = res.data || "";
-    const playlist = extractPlaylist(html);
-    if (!playlist || !Array.isArray(playlist.sources)) return [];
 
-    for (const source of playlist.sources) {
-      const file = source.file;
-      if (!file) continue;
-      const url = resolveUrl(file);
-      const label = source.label || "auto";
-      const isHls = source.type === "hls" || url.includes(".m3u8");
-      streams.push({
-        server: `Noodle ${label}`,
-        link: url,
-        type: isHls ? "m3u8" : "mp4",
-        headers: { "User-Agent": UA, Referer: BASE + "/" },
-      });
+    const playlist = extractPlaylist(html);
+    if (playlist && Array.isArray(playlist.sources)) {
+      for (const source of playlist.sources) {
+        const file = source && source.file;
+        if (!file) continue;
+        const url = resolveUrl(String(file));
+        const label = (source.label && String(source.label)) || "auto";
+        const isHls = source.type === "hls" || /\.m3u8/i.test(url);
+        streams.push({
+          server: `Noodle ${label}`,
+          link: url,
+          type: isHls ? "m3u8" : "mp4",
+          headers: { "User-Agent": UA, Referer: "https://noodlemagazine.com/" },
+        });
+      }
+    }
+
+    // Fallback: source tags if playlist missing
+    if (streams.length === 0) {
+      const sourceRe = /<source[^>]+src=["']([^"']+)["'][^>]*>/gi;
+      let m: RegExpExecArray | null;
+      while ((m = sourceRe.exec(html)) !== null) {
+        let src = m[1];
+        if (src.startsWith("//")) src = "https:" + src;
+        if (src.startsWith("/")) src = "https://noodlemagazine.com" + src;
+        if (/\.(mp4|m3u8)/i.test(src)) {
+          streams.push({
+            server: "Noodle Magazine",
+            link: src,
+            type: /\.m3u8/i.test(src) ? "m3u8" : "mp4",
+            headers: { "User-Agent": UA, Referer: "https://noodlemagazine.com/" },
+          });
+        }
+      }
     }
   } catch {}
 
