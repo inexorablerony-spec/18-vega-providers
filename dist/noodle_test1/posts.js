@@ -12,7 +12,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getPosts = getPosts;
 exports.getSearchPosts = getSearchPosts;
 const BASE = "https://noodlemagazine.com";
-const UA = "Mozilla/5.0";
+const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
+function getImage($el) {
+    const img = $el.find("img").first();
+    if (!img.length)
+        return "";
+    return (img.attr("data-src") ||
+        img.attr("data-original") ||
+        img.attr("data-lazy-src") ||
+        img.attr("src") ||
+        "");
+}
 function getPosts(_a) {
     return __awaiter(this, arguments, void 0, function* ({ page = 1, signal, providerContext }) {
         try {
@@ -22,9 +32,14 @@ function getPosts(_a) {
             const $ = cheerio.load(res.data || "");
             const posts = [];
             $("a[href*='/watch/']").each((_, el) => {
-                const link = $(el).attr("href");
-                const title = $(el).attr("title") || $(el).find("img").attr("alt") || $(el).text().trim() || "Video";
-                const image = $(el).find("img").attr("src") || "";
+                const $el = $(el);
+                const link = $el.attr("href");
+                const title = $el.attr("title") || $el.find("img").attr("alt") || $el.text().trim() || "Video";
+                let image = getImage($el);
+                if (image && image.startsWith("/"))
+                    image = BASE + image;
+                if (image && image.startsWith("//"))
+                    image = "https:" + image;
                 if (link && title) {
                     posts.push({ title, link: link.startsWith("http") ? link : BASE + link, image });
                 }
@@ -45,9 +60,14 @@ function getSearchPosts(_a) {
             const $ = cheerio.load(res.data || "");
             const posts = [];
             $("a[href*='/watch/']").each((_, el) => {
-                const link = $(el).attr("href");
-                const title = $(el).attr("title") || $(el).find("img").attr("alt") || "Result";
-                const image = $(el).find("img").attr("src") || "";
+                const $el = $(el);
+                const link = $el.attr("href");
+                const title = $el.attr("title") || $el.find("img").attr("alt") || "Result";
+                let image = getImage($el);
+                if (image && image.startsWith("/"))
+                    image = BASE + image;
+                if (image && image.startsWith("//"))
+                    image = "https:" + image;
                 if (link)
                     posts.push({ title, link: link.startsWith("http") ? link : BASE + link, image });
             });
