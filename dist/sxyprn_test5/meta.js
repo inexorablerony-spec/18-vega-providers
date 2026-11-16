@@ -19,8 +19,23 @@ function ssut51(arg) {
         sut += parseInt(str.charAt(i), 10);
     return sut;
 }
+function btoaPure(str) {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    let result = "";
+    let i = 0;
+    while (i < str.length) {
+        const a = str.charCodeAt(i++);
+        const b = i < str.length ? str.charCodeAt(i++) : 0;
+        const c = i < str.length ? str.charCodeAt(i++) : 0;
+        const triplet = (a << 16) | (b << 8) | c;
+        result += chars[(triplet >> 18) & 63] + chars[(triplet >> 12) & 63];
+        result += i > str.length + 1 ? "=" : chars[(triplet >> 6) & 63];
+        result += i > str.length ? "=" : chars[triplet & 63];
+    }
+    return result;
+}
 function boo(ss, es) {
-    const b = btoa(ss + "-sxyprn.com-" + es);
+    const b = btoaPure(ss + "-sxyprn.com-" + es);
     return b.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, ".");
 }
 function transformVid(path) {
