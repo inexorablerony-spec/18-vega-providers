@@ -3,6 +3,7 @@ const BASE = "https://sxyprn.com";
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
 
 const TOP_SEEDED = [
+  { title: "Reina OHara Fantasy (46 seeders)", link: "https://sxyprn.com/post/6afb1fb2ac49d.html", image: "" },
   { title: "Hottest Casting (28 seeders)", link: "https://sxyprn.com/post/6af93c317e9cc.html", image: "" },
   { title: "Older Woman Group (25 seeders)", link: "https://sxyprn.com/post/6af97c23e37fd.html", image: "" },
   { title: "Miss Lexa Super Hero (23 seeders)", link: "https://sxyprn.com/post/6afa0b979ff75.html", image: "" },
