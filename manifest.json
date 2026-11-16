@@ -151,5 +151,32 @@
     "type": "global",
     "category": "18+ movie",
     "disabled": false
+  },
+  {
+    "display_name": "Noodle Magazine",
+    "value": "noodlemagazine",
+    "version": "1.0",
+    "icon": "https://noodlemagazine.com/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
+  },
+  {
+    "display_name": "PornXP",
+    "value": "pornxp",
+    "version": "1.0",
+    "icon": "https://pornxp.com/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
+  },
+  {
+    "display_name": "WowXXX",
+    "value": "wowxxx",
+    "version": "1.0",
+    "icon": "https://wow.xxx/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
   }
 ]
