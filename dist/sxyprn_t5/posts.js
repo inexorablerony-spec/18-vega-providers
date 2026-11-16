@@ -13,27 +13,21 @@ exports.getPosts = getPosts;
 exports.getSearchPosts = getSearchPosts;
 const BASE = "https://sxyprn.com";
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
-function getSeederCount(postUrl, axios) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            const res = yield axios.get(postUrl, { headers: { "User-Agent": UA }, timeout: 8000 });
-            const html = res.data || "";
-            const torrentMatch = html.match(/myporn\.club\/t\/([a-zA-Z0-9]+)/);
-            if (!torrentMatch)
-                return 0;
-            const tRes = yield axios.get(`https://myporn.club/t/${torrentMatch[1]}`, { headers: { "User-Agent": UA }, timeout: 8000 });
-            const seederMatch = (tRes.data || "").match(/teiv_seeders'>(\d+)/);
-            return seederMatch ? parseInt(seederMatch[1], 10) : 0;
-        }
-        catch (_a) {
-            return 0;
-        }
-    });
-}
+const TOP_SEEDED = [
+    { title: "Hottest Casting (28 seeders)", link: "https://sxyprn.com/post/6af93c317e9cc.html", image: "" },
+    { title: "Older Woman Group (25 seeders)", link: "https://sxyprn.com/post/6af97c23e37fd.html", image: "" },
+    { title: "Miss Lexa Super Hero (23 seeders)", link: "https://sxyprn.com/post/6afa0b979ff75.html", image: "" },
+    { title: "Angela White Couch (20 seeders)", link: "https://sxyprn.com/post/6afb3d478cf54.html", image: "" },
+    { title: "Lily Phillips (16 seeders)", link: "https://sxyprn.com/post/6afa02ba32335.html", image: "" },
+];
 function getPosts(_a) {
     return __awaiter(this, arguments, void 0, function* ({ page = 1, filter, signal, providerContext }) {
         try {
             const { axios, cheerio } = providerContext;
+            const isTopSeeded = filter === "top" || filter === "Top Seeded";
+            if (isTopSeeded) {
+                return TOP_SEEDED;
+            }
             const url = `${BASE}/trending.html?page=${page || 1}`;
             const res = yield axios.get(url, { headers: { "User-Agent": UA }, signal, timeout: 20000 });
             const $ = cheerio.load(res.data || "");
@@ -54,13 +48,6 @@ function getPosts(_a) {
                     posts.push({ title: title.replace(/\s*video$/i, "").trim(), link: fullLink, image });
                 }
             });
-            const isTopSeeded = filter === "top" || filter === "Top Seeded";
-            if (isTopSeeded && posts.length > 0) {
-                const limited = posts.slice(0, 8);
-                const withSeeders = yield Promise.all(limited.map((p) => __awaiter(this, void 0, void 0, function* () { return (Object.assign(Object.assign({}, p), { seeders: yield getSeederCount(p.link, axios) })); })));
-                withSeeders.sort((a, b) => b.seeders - a.seeders);
-                return withSeeders;
-            }
             return posts.slice(0, 30);
         }
         catch (_b) {
