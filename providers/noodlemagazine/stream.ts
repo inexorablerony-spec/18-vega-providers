@@ -2,6 +2,7 @@ import { Stream, ProviderContext } from "../types";
 
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 const BASE = "https://adult.noodlemagazine.com";
+const REFERER = "https://noodlemagazine.com/";
 
 function extractPlaylist(html: string): any | null {
   const marker = "window.playlist";
@@ -40,6 +41,40 @@ function resolveUrl(file: string): string {
   return BASE + "/" + file;
 }
 
+function isPreview(url: string, label: string): boolean {
+  const l = (url + " " + label).toLowerCase();
+  return l.includes("preview") || l.includes("trailer") || l.includes("thumb");
+}
+
+async function expandHls(url: string, axios: any, label: string): Promise<Stream[]> {
+  const out: Stream[] = [];
+  const headers = { "User-Agent": UA, Referer: REFERER };
+  try {
+    const res = await axios.get(url, { headers, timeout: 15000 });
+    const text = res.data || "";
+    if (!text.includes("#EXT-X-STREAM-INF")) {
+      out.push({ server: `Noodle ${label}`, link: url, type: "m3u8", headers });
+      return out;
+    }
+    const lines = text.split(/\r?\n/);
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      if (!line.startsWith("#EXT-X-STREAM-INF")) continue;
+      const resMatch = line.match(/RESOLUTION=(\d+)x(\d+)/i);
+      const next = (lines[i + 1] || "").trim();
+      if (!next || next.startsWith("#")) continue;
+      const variant = next.startsWith("http") ? next : new URL(next, url).toString();
+      const height = resMatch ? resMatch[2] : "";
+      const q = height ? height + "p" : label;
+      out.push({ server: `Noodle ${q}`, link: variant, type: "m3u8", headers });
+    }
+  } catch {}
+  if (out.length === 0) {
+    out.push({ server: `Noodle ${label}`, link: url, type: "m3u8", headers });
+  }
+  return out;
+}
+
 export const getStream = async function ({
   link,
   providerContext,
@@ -49,52 +84,44 @@ export const getStream = async function ({
 }): Promise<Stream[]> {
   if (!link) return [];
   const streams: Stream[] = [];
+  const seen = new Set<string>();
 
   try {
     const axios = providerContext?.axios;
     if (!axios) return [];
 
     const res = await axios.get(link, {
-      headers: {
-        "User-Agent": UA,
-        Referer: "https://noodlemagazine.com/",
-        Accept: "text/html,application/xhtml+xml",
-      },
+      headers: { "User-Agent": UA, Referer: REFERER, Accept: "text/html,application/xhtml+xml" },
       timeout: 25000,
     });
     const html = res.data || "";
-
     const playlist = extractPlaylist(html);
+
     if (playlist && Array.isArray(playlist.sources)) {
       for (const source of playlist.sources) {
         const file = source && source.file;
         if (!file) continue;
         const url = resolveUrl(String(file));
         const label = (source.label && String(source.label)) || "auto";
-        const isHls = source.type === "hls" || /\.m3u8/i.test(url);
-        streams.push({
-          server: `Noodle ${label}`,
-          link: url,
-          type: isHls ? "m3u8" : "mp4",
-          headers: { "User-Agent": UA, Referer: "https://noodlemagazine.com/" },
-        });
-      }
-    }
+        if (isPreview(url, label)) continue;
+        if (seen.has(url)) continue;
+        seen.add(url);
 
-    // Fallback: source tags if playlist missing
-    if (streams.length === 0) {
-      const sourceRe = /<source[^>]+src=["']([^"']+)["'][^>]*>/gi;
-      let m: RegExpExecArray | null;
-      while ((m = sourceRe.exec(html)) !== null) {
-        let src = m[1];
-        if (src.startsWith("//")) src = "https:" + src;
-        if (src.startsWith("/")) src = "https://noodlemagazine.com" + src;
-        if (/\.(mp4|m3u8)/i.test(src)) {
+        const isHls = source.type === "hls" || /\.m3u8/i.test(url);
+        if (isHls) {
+          const variants = await expandHls(url, axios, label);
+          for (const v of variants) {
+            if (!seen.has(v.link)) {
+              seen.add(v.link);
+              streams.push(v);
+            }
+          }
+        } else {
           streams.push({
-            server: "Noodle Magazine",
-            link: src,
-            type: /\.m3u8/i.test(src) ? "m3u8" : "mp4",
-            headers: { "User-Agent": UA, Referer: "https://noodlemagazine.com/" },
+            server: `Noodle ${label}`,
+            link: url,
+            type: "mp4",
+            headers: { "User-Agent": UA, Referer: REFERER },
           });
         }
       }
