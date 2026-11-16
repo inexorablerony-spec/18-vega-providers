@@ -32,17 +32,10 @@ const getStream = function (_a) {
                     const tHtml = tRes.data || "";
                     const magnetMatch = tHtml.match(/magnet:\?[^"'\s]+/);
                     if (magnetMatch) {
-                        streams.push({ server: "SxyPrn Torrent", link: magnetMatch[0], type: "magnet", headers: { "User-Agent": UA } });
-                    }
-                    const dlMatch = tHtml.match(/download\.php\?[^"'\s]+/);
-                    if (dlMatch) {
-                        streams.push({ server: "SxyPrn Download", link: "https://myporn.club/" + dlMatch[0], type: "mp4", headers: { "User-Agent": UA } });
+                        streams.push({ server: "SxyPrn Torrent", link: magnetMatch[0], type: "torrent", headers: { "User-Agent": UA } });
                     }
                 }
                 catch (_b) { }
-            }
-            if (streams.length === 0) {
-                streams.push({ server: "LL1", link, type: "mp4", headers: { "User-Agent": UA, Referer: REFERER } });
             }
         }
         catch (_c) { }
