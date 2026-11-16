@@ -1,5 +1,3 @@
-// @vega-provider eporner
-// @vega-version 1.8
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.genres = exports.catalog = void 0;
