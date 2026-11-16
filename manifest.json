@@ -171,8 +171,8 @@
     "disabled": false
   },
   {
-    "display_name": "Noodle Test 1",
-    "value": "noodle_test1",
+    "display_name": "Noodle Magazine",
+    "value": "noodlemagazine",
     "version": "1.0",
     "icon": "https://noodlemagazine.com/favicon.ico",
     "type": "global",
