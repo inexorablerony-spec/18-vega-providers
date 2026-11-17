@@ -286,5 +286,14 @@
     "type": "global",
     "category": "18+ movie",
     "disabled": false
+  },
+  {
+    "display_name": "Noodle Test 1",
+    "value": "noodle_test1",
+    "version": "1.0",
+    "icon": "https://noodlemagazine.tv/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
   }
 ]
