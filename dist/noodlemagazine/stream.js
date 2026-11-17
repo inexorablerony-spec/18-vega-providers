@@ -12,17 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getStream = void 0;
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 const REFERER = "https://noodlemagazine.tv/";
-function getQuality(url) {
-    if (url.includes("1080"))
-        return "1080p";
-    if (url.includes("720"))
-        return "720p";
-    if (url.includes("480"))
-        return "480p";
-    if (url.includes("360"))
-        return "360p";
-    return "Auto";
-}
 const getStream = function (_a) {
     return __awaiter(this, arguments, void 0, function* ({ link, providerContext }) {
         if (!link)
@@ -45,62 +34,47 @@ const getStream = function (_a) {
             const m3u8Matches = html.match(/https?:\/\/[^"'\s]+\.m3u8[^"'\s]*/gi) || [];
             for (const url of [...new Set([...mp4Matches, ...m3u8Matches])]) {
                 if (!url.includes("preview") && !url.includes("thumb")) {
-                    const quality = getQuality(url);
-                    streams.push({ server: `Noodle ${quality}`, link: url, type: url.includes(".m3u8") ? "m3u8" : "mp4", headers });
+                    streams.push({ server: "Noodle", link: url, type: url.includes(".m3u8") ? "m3u8" : "mp4", headers });
                 }
             }
-            // 2. window.playlist
-            const playlistMatch = html.match(/window\.playlist\s*=\s*(\{[\s\S]*?\});/);
-            if (playlistMatch) {
-                try {
-                    const playlist = JSON.parse(playlistMatch[1]);
-                    if (playlist.sources) {
-                        for (const source of playlist.sources) {
-                            if (source.file) {
-                                const url = source.file.startsWith("//") ? "https:" + source.file : source.file;
-                                const quality = source.label || getQuality(url);
-                                streams.push({ server: `Noodle ${quality}`, link: url, type: url.includes(".m3u8") ? "m3u8" : "mp4", headers });
-                            }
-                        }
-                    }
-                }
-                catch (_b) { }
-            }
-            // 3. Embed URL
-            const embedMatch = html.match(/embed[^"]*"[^"]*"[^"]*"([^"]+)"/i);
+            // 2. Embed URL
+            const embedMatch = html.match(/embedUrl["']?\s*:\s*["']([^"']+)["']/i);
             if (embedMatch && streams.length === 0) {
-                const embedUrl = embedMatch[1];
+                const embedUrl = embedMatch[1].replace(/\\\//g, "/");
                 if (embedUrl && !embedUrl.includes("adtng")) {
+                    // Return embed URL as stream (player will handle it)
+                    streams.push({ server: "Noodle Embed", link: embedUrl, type: "mp4", headers });
+                    // Also try to extract streams from embed
                     try {
                         const embedRes = yield axios.get(embedUrl, { headers, timeout: 15000 });
                         const embedHtml = embedRes.data || "";
                         const embedMp4 = embedHtml.match(/https?:\/\/[^"'\s]+\.mp4[^"'\s]*/gi) || [];
                         const embedM3u8 = embedHtml.match(/https?:\/\/[^"'\s]+\.m3u8[^"'\s]*/gi) || [];
                         for (const url of [...new Set([...embedMp4, ...embedM3u8])]) {
-                            const quality = getQuality(url);
-                            streams.push({ server: `Noodle ${quality}`, link: url, type: url.includes(".m3u8") ? "m3u8" : "mp4", headers });
+                            streams.push({ server: "Noodle", link: url, type: url.includes(".m3u8") ? "m3u8" : "mp4", headers });
                         }
                     }
-                    catch (_c) { }
+                    catch (_b) { }
                 }
             }
-            // 4. JSON sources
-            const jsonMatch = html.match(/"sources":\s*\[([^\]]+)\]/);
-            if (jsonMatch && streams.length === 0) {
+            // 3. window.playlist
+            const playlistMatch = html.match(/window\.playlist\s*=\s*(\{[\s\S]*?\});/);
+            if (playlistMatch && streams.length === 0) {
                 try {
-                    const sources = JSON.parse("[" + jsonMatch[1] + "]");
-                    for (const source of sources) {
-                        if (source.file) {
-                            const url = source.file.startsWith("//") ? "https:" + source.file : source.file;
-                            const quality = source.label || getQuality(url);
-                            streams.push({ server: `Noodle ${quality}`, link: url, type: url.includes(".m3u8") ? "m3u8" : "mp4", headers });
+                    const playlist = JSON.parse(playlistMatch[1]);
+                    if (playlist.sources) {
+                        for (const source of playlist.sources) {
+                            if (source.file) {
+                                const url = source.file.startsWith("//") ? "https:" + source.file : source.file;
+                                streams.push({ server: "Noodle", link: url, type: url.includes(".m3u8") ? "m3u8" : "mp4", headers });
+                            }
                         }
                     }
                 }
-                catch (_d) { }
+                catch (_c) { }
             }
         }
-        catch (_e) { }
+        catch (_d) { }
         return streams;
     });
 };
