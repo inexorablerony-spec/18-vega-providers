@@ -232,5 +232,23 @@
     "type": "global",
     "category": "18+ movie",
     "disabled": false
+  },
+  {
+    "display_name": "PornOne",
+    "value": "pornone",
+    "version": "1.0",
+    "icon": "https://pornone.com/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
+  },
+  {
+    "display_name": "FapGoat",
+    "value": "fapgoat",
+    "version": "1.0",
+    "icon": "https://fapgoat.com/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
   }
 ]
