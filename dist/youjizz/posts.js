@@ -18,20 +18,25 @@ function parseHtml(html, cheerio) {
         const $ = cheerio.load(html || "");
         const posts = [];
         const seen = new Set();
-        $(".video-thumb").each((_, el) => {
+        $("a[href*='/videos/']").each((_, el) => {
+            var _a;
             const $el = $(el);
-            const $a = $el.closest("a");
-            const link = $a.attr("href") || $el.find("a").attr("href");
+            const link = $el.attr("href");
             if (!link || !link.includes("/videos/") || link.includes("/profile/") || seen.has(link))
                 return;
             const fullLink = link.startsWith("http") ? link : BASE + link;
             seen.add(fullLink);
-            const title = $el.find("img").attr("alt") || $a.attr("title") || $el.text().trim() || "Video";
+            const title = $el.attr("title") || $el.find("img").attr("alt") || $el.text().trim() || "Video";
             let image = $el.find("img").attr("data-src") || $el.find("img").attr("src") || "";
             if (image && image.startsWith("//"))
                 image = "https:" + image;
             if (image && image.startsWith("/"))
                 image = BASE + image;
+            if (!image || image.includes("silhouette")) {
+                const videoId = (_a = link.match(/-(\d+)\.html/)) === null || _a === void 0 ? void 0 : _a[1];
+                if (videoId)
+                    image = `https://cdne-static.youjizz.com/app/1/images/thumbs/${videoId}.jpg`;
+            }
             if (title && title.length > 3)
                 posts.push({ title, link: fullLink, image });
         });
@@ -55,7 +60,7 @@ function getSearchPosts(_a) {
     return __awaiter(this, arguments, void 0, function* ({ searchQuery, page = 1, signal, providerContext }) {
         try {
             const { axios, cheerio } = providerContext;
-            const url = `${BASE}/search/${encodeURIComponent(searchQuery)}-${page || 1}.html`;
+            const url = `${BASE}/search/${encodeURIComponent(searchQuery)}-${page}.html`;
             const res = yield axios.get(url, { headers: { "User-Agent": UA }, signal, timeout: 25000 });
             return yield parseHtml(res.data, cheerio);
         }

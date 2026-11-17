@@ -6,17 +6,20 @@ async function parseHtml(html: string, cheerio: any): Promise<Post[]> {
   const $ = cheerio.load(html || "");
   const posts: Post[] = [];
   const seen = new Set<string>();
-  $(".video-thumb").each((_: any, el: any) => {
+  $("a[href*='/videos/']").each((_: any, el: any) => {
     const $el = $(el);
-    const $a = $el.closest("a");
-    const link = $a.attr("href") || $el.find("a").attr("href");
+    const link = $el.attr("href");
     if (!link || !link.includes("/videos/") || link.includes("/profile/") || seen.has(link)) return;
     const fullLink = link.startsWith("http") ? link : BASE + link;
     seen.add(fullLink);
-    const title = $el.find("img").attr("alt") || $a.attr("title") || $el.text().trim() || "Video";
+    const title = $el.attr("title") || $el.find("img").attr("alt") || $el.text().trim() || "Video";
     let image = $el.find("img").attr("data-src") || $el.find("img").attr("src") || "";
     if (image && image.startsWith("//")) image = "https:" + image;
     if (image && image.startsWith("/")) image = BASE + image;
+    if (!image || image.includes("silhouette")) {
+      const videoId = link.match(/-(\d+)\.html/)?.[1];
+      if (videoId) image = `https://cdne-static.youjizz.com/app/1/images/thumbs/${videoId}.jpg`;
+    }
     if (title && title.length > 3) posts.push({ title, link: fullLink, image });
   });
   return posts.slice(0, 30);
@@ -34,7 +37,7 @@ export async function getPosts({ page = 1, signal, providerContext }: any): Prom
 export async function getSearchPosts({ searchQuery, page = 1, signal, providerContext }: any): Promise<Post[]> {
   try {
     const { axios, cheerio } = providerContext;
-    const url = `${BASE}/search/${encodeURIComponent(searchQuery)}-${page || 1}.html`;
+    const url = `${BASE}/search/${encodeURIComponent(searchQuery)}-${page}.html`;
     const res = await axios.get(url, { headers: { "User-Agent": UA }, signal, timeout: 25000 });
     return await parseHtml(res.data, cheerio);
   } catch { return []; }
