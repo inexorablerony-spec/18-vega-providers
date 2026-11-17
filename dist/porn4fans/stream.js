@@ -10,42 +10,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getStream = void 0;
-const UA = "Mozilla/5.0";
-const REFERER = "https://www.porn4fans.com/";
+const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 const getStream = function (_a) {
-    return __awaiter(this, arguments, void 0, function* ({ link, providerContext }) {
-        if (!link)
+    return __awaiter(this, arguments, void 0, function* ({ link }) {
+        if (!link || !/^https?:\/\//i.test(link))
             return [];
-        const streams = [];
-        const headers = { "User-Agent": UA, Referer: REFERER };
-        if (/\.mp4(\?|$)/i.test(link)) {
-            streams.push({ server: "Porn4Fans", link, type: "mp4", headers });
-            return streams;
-        }
-        try {
-            const axios = providerContext === null || providerContext === void 0 ? void 0 : providerContext.axios;
-            if (!axios)
-                return [];
-            const res = yield axios.get(link, { headers, timeout: 20000 });
-            const html = res.data || "";
-            const urlPattern = /video_(?:alt_)?url(?:\d+)?:\s*'([^']+\.mp4[^']*)'/gi;
-            const textPattern = /video_(?:alt_)?url(?:\d+)?_text:\s*'([^']+)'/gi;
-            const urls = [];
-            const texts = [];
-            let m;
-            while ((m = urlPattern.exec(html)) !== null)
-                urls.push(m[1]);
-            while ((m = textPattern.exec(html)) !== null)
-                texts.push(m[1]);
-            for (let i = 0; i < urls.length; i++) {
-                if (urls[i].includes("login-required"))
-                    continue;
-                const quality = texts[i] || "HD";
-                streams.push({ server: `Porn4Fans ${quality}`, link: urls[i], type: "mp4", headers });
-            }
-        }
-        catch (_b) { }
-        return streams;
+        if (!/\.mp4/i.test(link))
+            return [];
+        return [{
+                server: "porn4fans",
+                link,
+                type: "mp4",
+                headers: { "User-Agent": UA, Referer: "https://www.porn4fans.com/", Accept: "*/*" },
+            }];
     });
 };
 exports.getStream = getStream;
