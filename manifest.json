@@ -187,5 +187,14 @@
     "type": "global",
     "category": "18+ movie",
     "disabled": false
+  },
+  {
+    "display_name": "DesiBabe",
+    "value": "desibabe",
+    "version": "1.0",
+    "icon": "https://desibabe.co/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
   }
 ]
