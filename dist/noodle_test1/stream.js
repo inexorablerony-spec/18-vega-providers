@@ -10,16 +10,141 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getStream = void 0;
-const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
-const REFERER = "https://noodlemagazine.tv/";
+const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+const BASE = "https://adult.noodlemagazine.com";
+const REFERER = "https://noodlemagazine.com/";
+function extractPlaylist(html) {
+    const marker = "window.playlist";
+    const start = html.indexOf(marker);
+    if (start === -1)
+        return null;
+    const braceStart = html.indexOf("{", start);
+    if (braceStart === -1)
+        return null;
+    let depth = 0;
+    let inString = false;
+    let escape = false;
+    for (let i = braceStart; i < html.length; i++) {
+        const c = html[i];
+        if (escape) {
+            escape = false;
+            continue;
+        }
+        if (c === "\\") {
+            escape = true;
+            continue;
+        }
+        if (c === '"') {
+            inString = !inString;
+            continue;
+        }
+        if (inString)
+            continue;
+        if (c === "{")
+            depth++;
+        if (c === "}") {
+            depth--;
+            if (depth === 0) {
+                try {
+                    return JSON.parse(html.slice(braceStart, i + 1));
+                }
+                catch (_a) {
+                    return null;
+                }
+            }
+        }
+    }
+    return null;
+}
+function resolveUrl(file) {
+    if (file.startsWith("http"))
+        return file;
+    if (file.startsWith("//"))
+        return "https:" + file;
+    if (file.startsWith("/"))
+        return BASE + file;
+    return BASE + "/" + file;
+}
+function isPreview(url, label) {
+    const l = (url + " " + label).toLowerCase();
+    return l.includes("preview") || l.includes("trailer") || l.includes("thumb");
+}
+function expandHls(url, axios, label) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const out = [];
+        const headers = { "User-Agent": UA, Referer: REFERER };
+        try {
+            const res = yield axios.get(url, { headers, timeout: 15000 });
+            const text = res.data || "";
+            if (!text.includes("#EXT-X-STREAM-INF")) {
+                out.push({ server: `Noodle ${label}`, link: url, type: "m3u8", headers });
+                return out;
+            }
+            const lines = text.split(/\r?\n/);
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                if (!line.startsWith("#EXT-X-STREAM-INF"))
+                    continue;
+                const resMatch = line.match(/RESOLUTION=(\d+)x(\d+)/i);
+                const next = (lines[i + 1] || "").trim();
+                if (!next || next.startsWith("#"))
+                    continue;
+                const variant = next.startsWith("http") ? next : new URL(next, url).toString();
+                const height = resMatch ? resMatch[2] : "";
+                const q = height ? height + "p" : label;
+                out.push({ server: `Noodle ${q}`, link: variant, type: "m3u8", headers });
+            }
+        }
+        catch (_a) { }
+        if (out.length === 0) {
+            out.push({ server: `Noodle ${label}`, link: url, type: "m3u8", headers });
+        }
+        return out;
+    });
+}
 const getStream = function (_a) {
-    return __awaiter(this, arguments, void 0, function* ({ link }) {
+    return __awaiter(this, arguments, void 0, function* ({ link, providerContext }) {
         if (!link)
             return [];
-        if (/\.(mp4|m3u8)(\?|$)/i.test(link)) {
-            return [{ server: "NT1 Direct", link, type: /\.m3u8/i.test(link) ? "m3u8" : "mp4", headers: { "User-Agent": UA, Referer: REFERER } }];
+        const streams = [];
+        const seen = new Set();
+        try {
+            const axios = providerContext === null || providerContext === void 0 ? void 0 : providerContext.axios;
+            if (!axios)
+                return [];
+            const res = yield axios.get(link, { headers: { "User-Agent": UA, Referer: REFERER, Accept: "text/html,application/xhtml+xml" }, timeout: 25000 });
+            const html = res.data || "";
+            const playlist = extractPlaylist(html);
+            if (playlist && Array.isArray(playlist.sources)) {
+                for (const source of playlist.sources) {
+                    const file = source && source.file;
+                    if (!file)
+                        continue;
+                    const url = resolveUrl(String(file));
+                    const label = (source.label && String(source.label)) || "auto";
+                    if (isPreview(url, label))
+                        continue;
+                    if (seen.has(url))
+                        continue;
+                    seen.add(url);
+                    const isHls = source.type === "hls" || /\.m3u8/i.test(url);
+                    if (isHls) {
+                        const variants = yield expandHls(url, axios, label);
+                        for (const v of variants) {
+                            if (!seen.has(v.link)) {
+                                seen.add(v.link);
+                                streams.push(v);
+                            }
+                        }
+                    }
+                    else {
+                        streams.push({ server: `Noodle ${label}`, link: url, type: "mp4", headers: { "User-Agent": UA, Referer: REFERER } });
+                    }
+                }
+            }
         }
-        return [];
+        catch (_b) { }
+        return streams;
     });
 };
 exports.getStream = getStream;
