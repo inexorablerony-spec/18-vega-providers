@@ -250,41 +250,5 @@
     "type": "global",
     "category": "18+ movie",
     "disabled": false
-  },
-  {
-    "display_name": "JustPorn",
-    "value": "justporn",
-    "version": "1.0",
-    "icon": "https://justporn.com/favicon.ico",
-    "type": "global",
-    "category": "18+ movie",
-    "disabled": false
-  },
-  {
-    "display_name": "Beeg",
-    "value": "beeg",
-    "version": "1.0",
-    "icon": "https://beeg.com/favicon.ico",
-    "type": "global",
-    "category": "18+ movie",
-    "disabled": false
-  },
-  {
-    "display_name": "JerkMotion",
-    "value": "jerkmotion",
-    "version": "1.0",
-    "icon": "https://jerkmotion.com/favicon.ico",
-    "type": "global",
-    "category": "18+ movie",
-    "disabled": false
-  },
-  {
-    "display_name": "FullPorner",
-    "value": "fullporner",
-    "version": "1.0",
-    "icon": "https://fullporner.com/favicon.ico",
-    "type": "global",
-    "category": "18+ movie",
-    "disabled": false
   }
 ]
