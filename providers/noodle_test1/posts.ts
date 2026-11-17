@@ -1,6 +1,7 @@
 import { Post, ProviderContext } from "../types";
-const BASE = "https://noodlemagazine.tv";
+const BASE = "https://noodlemagazine.com";
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
+
 async function parseHtml(html: string, cheerio: any): Promise<Post[]> {
   const $ = cheerio.load(html || "");
   const posts: Post[] = [];
@@ -19,6 +20,7 @@ async function parseHtml(html: string, cheerio: any): Promise<Post[]> {
   });
   return posts.slice(0, 30);
 }
+
 export async function getPosts({ page = 1, signal, providerContext }: any): Promise<Post[]> {
   try {
     const { axios, cheerio } = providerContext;
@@ -27,6 +29,7 @@ export async function getPosts({ page = 1, signal, providerContext }: any): Prom
     return await parseHtml(res.data, cheerio);
   } catch { return []; }
 }
+
 export async function getSearchPosts({ searchQuery, page = 1, signal, providerContext }: any): Promise<Post[]> {
   try {
     const { axios, cheerio } = providerContext;

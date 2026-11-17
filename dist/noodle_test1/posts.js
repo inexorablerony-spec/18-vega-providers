@@ -11,7 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getPosts = getPosts;
 exports.getSearchPosts = getSearchPosts;
-const BASE = "https://noodlemagazine.tv";
+const BASE = "https://noodlemagazine.com";
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
 function parseHtml(html, cheerio) {
     return __awaiter(this, void 0, void 0, function* () {
