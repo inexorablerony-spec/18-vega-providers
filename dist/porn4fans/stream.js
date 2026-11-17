@@ -28,11 +28,20 @@ const getStream = function (_a) {
                 return [];
             const res = yield axios.get(link, { headers, timeout: 20000 });
             const html = res.data || "";
-            const matches = html.match(/https?:\/\/[^"'\s]+get_file[^"'\s]+\.mp4[^"'\s]*/gi) || [];
-            for (const url of matches) {
-                if (url.includes("preview"))
+            const urlPattern = /video_(?:alt_)?url(?:\d+)?:\s*'([^']+\.mp4[^']*)'/gi;
+            const textPattern = /video_(?:alt_)?url(?:\d+)?_text:\s*'([^']+)'/gi;
+            const urls = [];
+            const texts = [];
+            let m;
+            while ((m = urlPattern.exec(html)) !== null)
+                urls.push(m[1]);
+            while ((m = textPattern.exec(html)) !== null)
+                texts.push(m[1]);
+            for (let i = 0; i < urls.length; i++) {
+                if (urls[i].includes("login-required"))
                     continue;
-                streams.push({ server: "Porn4Fans", link: url, type: "mp4", headers });
+                const quality = texts[i] || "HD";
+                streams.push({ server: `Porn4Fans ${quality}`, link: urls[i], type: "mp4", headers });
             }
         }
         catch (_b) { }
