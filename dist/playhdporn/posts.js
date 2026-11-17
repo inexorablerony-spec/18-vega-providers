@@ -19,6 +19,7 @@ function parseHtml(html, cheerio) {
         const posts = [];
         const seen = new Set();
         $("a[href*='/video/']").each((_, el) => {
+            var _a;
             const $el = $(el);
             const link = $el.attr("href");
             if (!link || !link.includes("/video/") || seen.has(link))
@@ -26,11 +27,16 @@ function parseHtml(html, cheerio) {
             const fullLink = link.startsWith("http") ? link : BASE + link;
             seen.add(fullLink);
             const title = $el.attr("title") || $el.find("img").attr("alt") || $el.text().trim() || "Video";
-            let image = $el.find("img").attr("data-src") || $el.find("img").attr("src") || "";
+            let image = $el.find("img").attr("src") || $el.find("img").attr("data-src") || "";
             if (image && image.startsWith("//"))
                 image = "https:" + image;
             if (image && image.startsWith("/"))
                 image = BASE + image;
+            if (!image) {
+                const videoId = (_a = link.match(/\/video\/([^/]+)/)) === null || _a === void 0 ? void 0 : _a[1];
+                if (videoId)
+                    image = `${BASE}/contents/videos_screenshots/25000/${videoId}/320x180/1.jpg`;
+            }
             if (title)
                 posts.push({ title, link: fullLink, image });
         });
@@ -41,7 +47,7 @@ function getPosts(_a) {
     return __awaiter(this, arguments, void 0, function* ({ page = 1, signal, providerContext }) {
         try {
             const { axios, cheerio } = providerContext;
-            const url = page > 1 ? `${BASE}/?page=${page}` : `${BASE}/`;
+            const url = page > 1 ? `${BASE}/latest-updates/?page=${page}` : `${BASE}/latest-updates/`;
             const res = yield axios.get(url, { headers: { "User-Agent": UA }, signal, timeout: 25000 });
             return yield parseHtml(res.data, cheerio);
         }
