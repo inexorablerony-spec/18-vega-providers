@@ -19,13 +19,36 @@ const getMeta = function (_a) {
             const html = res.data || "";
             const title = ((_b = html.match(/<title[^>]*>(.*?)<\/title>/i)) === null || _b === void 0 ? void 0 : _b[1]) || "YouJizz";
             const image = ((_c = html.match(/property=["']og:image["'][^>]*content=["']([^"']+)/i)) === null || _c === void 0 ? void 0 : _c[1]) || "";
+            const fullImage = image.startsWith("//") ? "https:" + image : image;
             const linkList = [];
             const mp4Match = html.match(/\/\/cdne-mobile\.youjizz\.com[^"'\s]+\.mp4[^"'\s]*/gi) || [];
+            const qualities = {};
             for (const url of [...new Set(mp4Match)]) {
                 const fullUrl = url.startsWith("//") ? "https:" + url : url;
-                linkList.push({ title: "Play", quality: "HD", directLinks: [{ title: "HD", link: fullUrl, type: "mp4" }] });
+                const resMatch = url.match(/(\d+)-(\d+)-(\d+)-h264/);
+                if (resMatch) {
+                    const height = parseInt(resMatch[2]);
+                    let quality = "SD";
+                    if (height >= 1080)
+                        quality = "1080p";
+                    else if (height >= 720)
+                        quality = "720p";
+                    else if (height >= 480)
+                        quality = "480p";
+                    else if (height >= 360)
+                        quality = "360p";
+                    else if (height >= 240)
+                        quality = "240p";
+                    else
+                        quality = "144p";
+                    if (!qualities[quality])
+                        qualities[quality] = fullUrl;
+                }
             }
-            return { title, synopsis: "", image, imdbId: "", type: "movie", linkList };
+            for (const [quality, url] of Object.entries(qualities)) {
+                linkList.push({ title: "Play", quality, directLinks: [{ title: quality, link: url, type: "mp4" }] });
+            }
+            return { title, synopsis: "", image: fullImage, imdbId: "", type: "movie", linkList };
         }
         catch (_d) {
             return { title: "", synopsis: "", image: "", imdbId: "", type: "movie", linkList: [] };

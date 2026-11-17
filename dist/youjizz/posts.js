@@ -18,14 +18,15 @@ function parseHtml(html, cheerio) {
         const $ = cheerio.load(html || "");
         const posts = [];
         const seen = new Set();
-        $("a[href*='/videos/']").each((_, el) => {
+        $(".video-thumb").each((_, el) => {
             const $el = $(el);
-            const link = $el.attr("href");
+            const $a = $el.closest("a");
+            const link = $a.attr("href") || $el.find("a").attr("href");
             if (!link || !link.includes("/videos/") || link.includes("/profile/") || seen.has(link))
                 return;
             const fullLink = link.startsWith("http") ? link : BASE + link;
             seen.add(fullLink);
-            const title = $el.attr("title") || $el.find("img").attr("alt") || $el.text().trim() || "Video";
+            const title = $el.find("img").attr("alt") || $a.attr("title") || $el.text().trim() || "Video";
             let image = $el.find("img").attr("data-src") || $el.find("img").attr("src") || "";
             if (image && image.startsWith("//"))
                 image = "https:" + image;
@@ -54,7 +55,7 @@ function getSearchPosts(_a) {
     return __awaiter(this, arguments, void 0, function* ({ searchQuery, page = 1, signal, providerContext }) {
         try {
             const { axios, cheerio } = providerContext;
-            const url = `${BASE}/search/${encodeURIComponent(searchQuery)}-${page}.html`;
+            const url = `${BASE}/search/${encodeURIComponent(searchQuery)}-${page || 1}.html`;
             const res = yield axios.get(url, { headers: { "User-Agent": UA }, signal, timeout: 25000 });
             return yield parseHtml(res.data, cheerio);
         }

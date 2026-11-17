@@ -29,9 +29,30 @@ const getStream = function (_a) {
             const res = yield axios.get(link, { headers, timeout: 20000 });
             const html = res.data || "";
             const matches = html.match(/\/\/cdne-mobile\.youjizz\.com[^"'\s]+\.mp4[^"'\s]*/gi) || [];
-            for (const url of [...new Set(matches)]) {
+            const seen = new Set();
+            for (const url of matches) {
                 const fullUrl = url.startsWith("//") ? "https:" + url : url;
-                streams.push({ server: "YouJizz", link: fullUrl, type: "mp4", headers });
+                if (seen.has(fullUrl))
+                    continue;
+                seen.add(fullUrl);
+                const resMatch = url.match(/(\d+)-(\d+)-(\d+)-h264/);
+                let quality = "SD";
+                if (resMatch) {
+                    const height = parseInt(resMatch[2]);
+                    if (height >= 1080)
+                        quality = "1080p";
+                    else if (height >= 720)
+                        quality = "720p";
+                    else if (height >= 480)
+                        quality = "480p";
+                    else if (height >= 360)
+                        quality = "360p";
+                    else if (height >= 240)
+                        quality = "240p";
+                    else
+                        quality = "144p";
+                }
+                streams.push({ server: `YouJizz ${quality}`, link: fullUrl, type: "mp4", headers });
             }
         }
         catch (_b) { }
