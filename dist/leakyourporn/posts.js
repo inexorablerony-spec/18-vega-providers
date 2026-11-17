@@ -18,10 +18,10 @@ function parseHtml(html, cheerio) {
         const $ = cheerio.load(html || "");
         const posts = [];
         const seen = new Set();
-        $("a[href*='/videos/']").each((_, el) => {
+        $("a[href*='/video/']").each((_, el) => {
             const $el = $(el);
             const link = $el.attr("href");
-            if (!link || !link.includes("/videos/") || seen.has(link))
+            if (!link || !link.includes("/video/") || seen.has(link))
                 return;
             const fullLink = link.startsWith("http") ? link : BASE + link;
             seen.add(fullLink);
