@@ -54,11 +54,24 @@ function getSearchPosts(_a) {
     return __awaiter(this, arguments, void 0, function* ({ searchQuery, page = 1, signal, providerContext }) {
         try {
             const { axios, cheerio } = providerContext;
-            const url = `${BASE}/search?q=${encodeURIComponent(searchQuery)}&page=${page || 1}`;
-            const res = yield axios.get(url, { headers: { "User-Agent": UA }, signal, timeout: 25000 });
-            return yield parseHtml(res.data, cheerio);
+            // Try multiple search URL formats
+            const urls = [
+                `${BASE}/search?q=${encodeURIComponent(searchQuery)}&page=${page || 1}`,
+                `${BASE}/search/${encodeURIComponent(searchQuery)}/?page=${page || 1}`,
+                `${BASE}/?s=${encodeURIComponent(searchQuery)}&page=${page || 1}`,
+            ];
+            for (const url of urls) {
+                try {
+                    const res = yield axios.get(url, { headers: { "User-Agent": UA }, signal, timeout: 15000 });
+                    const posts = yield parseHtml(res.data, cheerio);
+                    if (posts.length > 0)
+                        return posts;
+                }
+                catch (_b) { }
+            }
+            return [];
         }
-        catch (_b) {
+        catch (_c) {
             return [];
         }
     });
