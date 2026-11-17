@@ -69,6 +69,27 @@ async function expandHls(url: string, axios: any, label: string): Promise<Stream
 export const getStream = async function ({ link, providerContext }: { link: string; providerContext?: ProviderContext }): Promise<Stream[]> {
   if (!link) return [];
   const streams: Stream[] = [];
+  const headers = { "User-Agent": UA, Referer: REFERER };
+
+  // Direct MP4
+  if (/\.mp4(\?|$)/i.test(link)) {
+    streams.push({ server: "Noodle Direct", link, type: "mp4", headers });
+    return streams;
+  }
+
+  // Direct M3U8
+  if (/\.m3u8(\?|$)/i.test(link)) {
+    const axios = providerContext?.axios;
+    if (axios) {
+      const variants = await expandHls(link, axios, "Auto");
+      streams.push(...variants);
+    } else {
+      streams.push({ server: "Noodle HLS", link, type: "m3u8", headers });
+    }
+    return streams;
+  }
+
+  // Video webpage
   const seenSources = new Set<string>();
   const seen = new Set<string>();
   try {
@@ -98,7 +119,7 @@ export const getStream = async function ({ link, providerContext }: { link: stri
         } else {
           if (!seen.has(url)) {
             seen.add(url);
-            streams.push({ server: `Noodle ${label}`, link: url, type: "mp4", headers: { "User-Agent": UA, Referer: REFERER } });
+            streams.push({ server: `Noodle ${label}`, link: url, type: "mp4", headers });
           }
         }
       }

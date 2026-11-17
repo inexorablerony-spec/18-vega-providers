@@ -11,39 +11,39 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getPosts = getPosts;
 exports.getSearchPosts = getSearchPosts;
-const BASE = "https://noodlemagazine.tv";
+const BASE = "https://noodlemagazine.com";
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
-function parsePosts($, seen) {
-    const posts = [];
-    $("a[href*='/watch/']").each((_, el) => {
-        const $el = $(el);
-        const link = $el.attr("href");
-        if (!link || !link.includes("/watch/"))
-            return;
-        const fullLink = link.startsWith("http") ? link : BASE + link;
-        if (seen.has(fullLink))
-            return;
-        seen.add(fullLink);
-        const title = $el.find("img").attr("alt") || $el.text().trim() || "Video";
-        let image = $el.find("img").attr("data-src") || $el.find("img").attr("src") || "";
-        if (image && image.startsWith("/"))
-            image = BASE + image;
-        if (image && image.startsWith("//"))
-            image = "https:" + image;
-        if (title)
-            posts.push({ title, link: fullLink, image });
+function parseHtml(html, cheerio) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const $ = cheerio.load(html || "");
+        const posts = [];
+        const seen = new Set();
+        $("a[href*='/watch/']").each((_, el) => {
+            const $el = $(el);
+            const link = $el.attr("href");
+            if (!link || !link.includes("/watch/") || seen.has(link))
+                return;
+            const fullLink = link.startsWith("http") ? link : BASE + link;
+            seen.add(fullLink);
+            const title = $el.find("img").attr("alt") || $el.text().trim() || "Video";
+            let image = $el.find("img").attr("data-src") || $el.find("img").attr("src") || "";
+            if (image && image.startsWith("//"))
+                image = "https:" + image;
+            if (image && image.startsWith("/"))
+                image = BASE + image;
+            if (title)
+                posts.push({ title, link: fullLink, image });
+        });
+        return posts.slice(0, 30);
     });
-    return posts;
 }
 function getPosts(_a) {
     return __awaiter(this, arguments, void 0, function* ({ page = 1, signal, providerContext }) {
         try {
             const { axios, cheerio } = providerContext;
             const url = page > 1 ? `${BASE}/?page=${page}` : `${BASE}/`;
-            const res = yield axios.get(url, { headers: { "User-Agent": UA }, signal, timeout: 20000 });
-            const $ = cheerio.load(res.data || "");
-            const seen = new Set();
-            return parsePosts($, seen).slice(0, 30);
+            const res = yield axios.get(url, { headers: { "User-Agent": UA }, signal, timeout: 25000 });
+            return yield parseHtml(res.data, cheerio);
         }
         catch (_b) {
             return [];
@@ -54,14 +54,24 @@ function getSearchPosts(_a) {
     return __awaiter(this, arguments, void 0, function* ({ searchQuery, page = 1, signal, providerContext }) {
         try {
             const { axios, cheerio } = providerContext;
-            const q = encodeURIComponent(searchQuery);
-            const url = page > 1 ? `${BASE}/search?q=${q}&page=${page}` : `${BASE}/search?q=${q}`;
-            const res = yield axios.get(url, { headers: { "User-Agent": UA }, signal, timeout: 20000 });
-            const $ = cheerio.load(res.data || "");
-            const seen = new Set();
-            return parsePosts($, seen).slice(0, 30);
+            // Try multiple search URL formats
+            const urls = [
+                `${BASE}/search?q=${encodeURIComponent(searchQuery)}&page=${page || 1}`,
+                `${BASE}/search/${encodeURIComponent(searchQuery)}/?page=${page || 1}`,
+                `${BASE}/?s=${encodeURIComponent(searchQuery)}&page=${page || 1}`,
+            ];
+            for (const url of urls) {
+                try {
+                    const res = yield axios.get(url, { headers: { "User-Agent": UA }, signal, timeout: 15000 });
+                    const posts = yield parseHtml(res.data, cheerio);
+                    if (posts.length > 0)
+                        return posts;
+                }
+                catch (_b) { }
+            }
+            return [];
         }
-        catch (_b) {
+        catch (_c) {
             return [];
         }
     });

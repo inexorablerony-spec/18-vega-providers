@@ -107,6 +107,25 @@ const getStream = function (_a) {
         if (!link)
             return [];
         const streams = [];
+        const headers = { "User-Agent": UA, Referer: REFERER };
+        // Direct MP4
+        if (/\.mp4(\?|$)/i.test(link)) {
+            streams.push({ server: "Noodle Direct", link, type: "mp4", headers });
+            return streams;
+        }
+        // Direct M3U8
+        if (/\.m3u8(\?|$)/i.test(link)) {
+            const axios = providerContext === null || providerContext === void 0 ? void 0 : providerContext.axios;
+            if (axios) {
+                const variants = yield expandHls(link, axios, "Auto");
+                streams.push(...variants);
+            }
+            else {
+                streams.push({ server: "Noodle HLS", link, type: "m3u8", headers });
+            }
+            return streams;
+        }
+        // Video webpage
         const seenSources = new Set();
         const seen = new Set();
         try {
@@ -141,7 +160,7 @@ const getStream = function (_a) {
                     else {
                         if (!seen.has(url)) {
                             seen.add(url);
-                            streams.push({ server: `Noodle ${label}`, link: url, type: "mp4", headers: { "User-Agent": UA, Referer: REFERER } });
+                            streams.push({ server: `Noodle ${label}`, link: url, type: "mp4", headers });
                         }
                     }
                 }
