@@ -214,5 +214,23 @@
     "type": "global",
     "category": "18+ movie",
     "disabled": false
+  },
+  {
+    "display_name": "Porn4Fans",
+    "value": "porn4fans",
+    "version": "1.0",
+    "icon": "https://www.porn4fans.com/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
+  },
+  {
+    "display_name": "HornyLeak",
+    "value": "hornyleak",
+    "version": "1.0",
+    "icon": "https://www.hornyleak.tv/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
   }
 ]
