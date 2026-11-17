@@ -10,19 +10,31 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getStream = void 0;
-const UA = "Mozilla/5.0";
+const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+const REFERER = "https://dirtyship.com/";
 const getStream = function (_a) {
-    return __awaiter(this, arguments, void 0, function* ({ link }) {
-        if (!link || !/^https?:\/\//i.test(link))
+    return __awaiter(this, arguments, void 0, function* ({ link, providerContext }) {
+        if (!link)
             return [];
-        if (!/\.mp4/i.test(link))
-            return [];
-        return [{
-                server: "dirtyship",
-                link,
-                type: "mp4",
-                headers: { "User-Agent": UA, Referer: "https://dirtyship.com/", Accept: "*/*" },
-            }];
+        const streams = [];
+        const headers = { "User-Agent": UA, Referer: REFERER, Origin: REFERER, Accept: "*/*" };
+        if (/\.mp4(\?|$)/i.test(link)) {
+            streams.push({ server: "DirtyShip", link, type: "mp4", headers });
+            return streams;
+        }
+        try {
+            const axios = providerContext === null || providerContext === void 0 ? void 0 : providerContext.axios;
+            if (!axios)
+                return [];
+            const res = yield axios.get(link, { headers, timeout: 20000 });
+            const html = res.data || "";
+            const matches = html.match(/https?:\/\/cdn[^"'\s]+\.mp4/gi) || [];
+            for (const url of [...new Set(matches)]) {
+                streams.push({ server: "DirtyShip", link: url, type: "mp4", headers });
+            }
+        }
+        catch (_b) { }
+        return streams;
     });
 };
 exports.getStream = getStream;
