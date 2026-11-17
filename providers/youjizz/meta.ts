@@ -1,0 +1,17 @@
+import { Info, ProviderContext } from "../types";
+export const getMeta = async function ({ link, providerContext }: { link: string; providerContext: ProviderContext }): Promise<Info> {
+  try {
+    const { axios } = providerContext;
+    const res = await axios.get(link, { headers: { "User-Agent": "Mozilla/5.0" }, timeout: 15000 });
+    const html = res.data || "";
+    const title = html.match(/<title[^>]*>(.*?)<\/title>/i)?.[1] || "YouJizz";
+    const image = html.match(/property=["']og:image["'][^>]*content=["']([^"']+)/i)?.[1] || "";
+    const linkList: any[] = [];
+    const mp4Match = html.match(/\/\/cdne-mobile\.youjizz\.com[^"'\s]+\.mp4[^"'\s]*/gi) || [];
+    for (const url of [...new Set(mp4Match)]) {
+      const fullUrl = (url as string).startsWith("//") ? "https:" + url : url;
+      linkList.push({ title: "Play", quality: "HD", directLinks: [{ title: "HD", link: fullUrl, type: "mp4" }] });
+    }
+    return { title, synopsis: "", image, imdbId: "", type: "movie", linkList };
+  } catch { return { title: "", synopsis: "", image: "", imdbId: "", type: "movie", linkList: [] }; }
+};

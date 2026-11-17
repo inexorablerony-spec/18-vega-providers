@@ -250,5 +250,41 @@
     "type": "global",
     "category": "18+ movie",
     "disabled": false
+  },
+  {
+    "display_name": "PlayHDPorn",
+    "value": "playhdporn",
+    "version": "1.0",
+    "icon": "https://playhdporn.com/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
+  },
+  {
+    "display_name": "YouJizz",
+    "value": "youjizz",
+    "version": "1.0",
+    "icon": "https://www.youjizz.com/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
+  },
+  {
+    "display_name": "PornWhite",
+    "value": "pornwhite",
+    "version": "1.0",
+    "icon": "https://www.pornwhite.com/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
+  },
+  {
+    "display_name": "YouPorn",
+    "value": "youporn",
+    "version": "1.0",
+    "icon": "https://www.youporn.com/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
   }
 ]
