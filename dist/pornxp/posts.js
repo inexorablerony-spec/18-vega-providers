@@ -49,7 +49,7 @@ function getSearchPosts(_a) {
     return __awaiter(this, arguments, void 0, function* ({ searchQuery, page = 1, signal, providerContext }) {
         try {
             const { axios, cheerio } = providerContext;
-            const url = `${BASE}/?q=${encodeURIComponent(searchQuery)}&page=${page}`;
+            const url = `${BASE}/tags/${encodeURIComponent(searchQuery)}?page=${page}`;
             const res = yield axios.get(url, { headers: { "User-Agent": UA }, signal, timeout: 25000 });
             const $ = cheerio.load(res.data || "");
             const posts = [];
