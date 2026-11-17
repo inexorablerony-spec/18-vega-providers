@@ -232,14 +232,5 @@
     "type": "global",
     "category": "18+ movie",
     "disabled": false
-  },
-  {
-    "display_name": "BornToBeFuck",
-    "value": "borntobefuck",
-    "version": "1.0",
-    "icon": "https://borntobefuck.com/favicon.ico",
-    "type": "global",
-    "category": "18+ movie",
-    "disabled": false
   }
 ]
