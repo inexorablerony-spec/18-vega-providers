@@ -295,5 +295,14 @@
     "type": "global",
     "category": "18+ movie",
     "disabled": false
+  },
+  {
+    "display_name": "HornyLeak",
+    "value": "hornyleak",
+    "version": "1.0",
+    "icon": "https://www.hornyleak.tv/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
   }
 ]
