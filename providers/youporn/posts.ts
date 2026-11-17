@@ -5,13 +5,13 @@ async function parseHtml(html: string, cheerio: any): Promise<Post[]> {
   const $ = cheerio.load(html || "");
   const posts: Post[] = [];
   const seen = new Set<string>();
-  $("a[href*='/watch/']").each((_: any, el: any) => {
+  $(".video-box a[href*='/watch/']").each((_: any, el: any) => {
     const $el = $(el);
     const link = $el.attr("href");
     if (!link || !link.includes("/watch/") || link.includes("/watch-history") || seen.has(link)) return;
     const fullLink = link.startsWith("http") ? link : BASE + link;
     seen.add(fullLink);
-    const title = $el.attr("title") || $el.find("img").attr("alt") || $el.text().trim() || "Video";
+    const title = $el.find(".video-title-text").text().trim() || $el.attr("title") || $el.find("img").attr("alt") || "Video";
     let image = $el.find("img").attr("data-src") || $el.find("img").attr("src") || "";
     if (image && image.startsWith("//")) image = "https:" + image;
     if (image && image.startsWith("/")) image = BASE + image;

@@ -26,7 +26,7 @@ function parseHtml(html, cheerio) {
             const fullLink = link.startsWith("http") ? link : BASE + link;
             seen.add(fullLink);
             const title = $el.attr("title") || $el.find("img").attr("alt") || $el.text().trim() || "Video";
-            let image = $el.find("img").attr("data-src") || $el.find("img").attr("src") || "";
+            let image = $el.find("img").attr("data-src") || $el.find("img").attr("src") || $el.attr("data-poster") || "";
             if (image && image.startsWith("//"))
                 image = "https:" + image;
             if (image && image.startsWith("/"))

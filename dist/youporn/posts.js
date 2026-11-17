@@ -18,14 +18,14 @@ function parseHtml(html, cheerio) {
         const $ = cheerio.load(html || "");
         const posts = [];
         const seen = new Set();
-        $("a[href*='/watch/']").each((_, el) => {
+        $(".video-box a[href*='/watch/']").each((_, el) => {
             const $el = $(el);
             const link = $el.attr("href");
             if (!link || !link.includes("/watch/") || link.includes("/watch-history") || seen.has(link))
                 return;
             const fullLink = link.startsWith("http") ? link : BASE + link;
             seen.add(fullLink);
-            const title = $el.attr("title") || $el.find("img").attr("alt") || $el.text().trim() || "Video";
+            const title = $el.find(".video-title-text").text().trim() || $el.attr("title") || $el.find("img").attr("alt") || "Video";
             let image = $el.find("img").attr("data-src") || $el.find("img").attr("src") || "";
             if (image && image.startsWith("//"))
                 image = "https:" + image;
