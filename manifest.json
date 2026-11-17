@@ -196,5 +196,14 @@
     "type": "global",
     "category": "18+ movie",
     "disabled": false
+  },
+  {
+    "display_name": "MyKamababa",
+    "value": "mykamababa",
+    "version": "1.0",
+    "icon": "https://www.mykamababa.com/wp-content/uploads/2020/07/kamababa_logo_50px.png",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
   }
 ]
