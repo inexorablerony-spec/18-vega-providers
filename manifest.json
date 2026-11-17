@@ -232,5 +232,14 @@
     "type": "global",
     "category": "18+ movie",
     "disabled": false
+  },
+  {
+    "display_name": "DirtyShip",
+    "value": "dirtyship",
+    "version": "1.0",
+    "icon": "https://dirtyship.com/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
   }
 ]
