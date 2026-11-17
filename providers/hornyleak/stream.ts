@@ -6,8 +6,8 @@ export const getStream = async function ({ link, providerContext }: { link: stri
   if (!link) return [];
   const streams: Stream[] = [];
   const headers = { "User-Agent": UA, Referer: REFERER };
-  if (/\.mp4(\?|$)/i.test(link)) {
-    streams.push({ server: "HornyLeak", link, type: "mp4", headers });
+  if (/\.mp4/i.test(link)) {
+    streams.push({ server: "HornyLeak Preview", link, type: "mp4", headers });
     return streams;
   }
   try {
@@ -18,9 +18,9 @@ export const getStream = async function ({ link, providerContext }: { link: stri
     const mp4Matches = html.match(/https?:\/\/[^"'\s]+\.mp4[^"'\s]*/gi) || [];
     const seen = new Set<string>();
     for (const url of [...new Set(mp4Matches)] as string[]) {
-      if (!url.includes("preview") && !url.includes("thumb") && !seen.has(url)) {
+      if (url.includes("preview") && !seen.has(url)) {
         seen.add(url);
-        streams.push({ server: "HornyLeak", link: url, type: "mp4", headers });
+        streams.push({ server: "HornyLeak Preview", link: url, type: "mp4", headers });
       }
     }
   } catch {}
