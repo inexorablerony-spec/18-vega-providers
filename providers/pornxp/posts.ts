@@ -35,7 +35,7 @@ export async function getPosts({ page = 1, signal, providerContext }: any): Prom
 export async function getSearchPosts({ searchQuery, page = 1, signal, providerContext }: any): Promise<Post[]> {
   try {
     const { axios, cheerio } = providerContext;
-    const url = `${BASE}/?q=${encodeURIComponent(searchQuery)}const url = `${BASE}/search?q=${encodeURIComponent(searchQuery)}&page=${page}`;page=${page}`;
+    const url = `${BASE}/?q=${encodeURIComponent(searchQuery)}&page=${page}`;
     const res = await axios.get(url, { headers: { "User-Agent": UA }, signal, timeout: 25000 });
     const $ = cheerio.load(res.data || "");
     const posts: Post[] = [];
