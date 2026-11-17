@@ -40,6 +40,8 @@ export const getMeta = async function ({ link, providerContext }: { link: string
     const title = html.match(/<title[^>]*>(.*?)<\/title>/i)?.[1] || "Noodle Test 1";
     const image = html.match(/property=["']og:image["'][^>]*content=["']([^"']+)/i)?.[1] || "";
     const linkList: any[] = [];
+    
+    // Try window.playlist
     const playlist = extractPlaylist(html);
     if (playlist && Array.isArray(playlist.sources)) {
       for (const source of playlist.sources) {
@@ -50,6 +52,30 @@ export const getMeta = async function ({ link, providerContext }: { link: string
         }
       }
     }
+    
+    // Fallback: extract MP4/M3U8 from HTML
+    if (linkList.length === 0) {
+      const mp4Matches = html.match(/https?:\/\/[^"'\s]+\.mp4[^"'\s]*/gi) || [];
+      const m3u8Matches = html.match(/https?:\/\/[^"'\s]+\.m3u8[^"'\s]*/gi) || [];
+      for (const url of [...new Set([...mp4Matches, ...m3u8Matches] as string[])]) {
+        if (!url.includes("preview") && !url.includes("thumb")) {
+          const quality = url.includes("1080") ? "1080p" : url.includes("720") ? "720p" : url.includes("480") ? "480p" : "Auto";
+          linkList.push({ title: quality, quality, directLinks: [{ title: quality, link: url, type: url.includes(".m3u8") ? "m3u8" : "mp4" }] });
+        }
+      }
+    }
+    
+    // Fallback: embed URL
+    if (linkList.length === 0) {
+      const embedMatch = html.match(/embedUrl["']?\s*:\s*["']([^"']+)["']/i);
+      if (embedMatch) {
+        const embedUrl = embedMatch[1].replace(/\\\//g, "/");
+        if (embedUrl && !embedUrl.includes("adtng")) {
+          linkList.push({ title: "Play", quality: "Auto", directLinks: [{ title: "Embed", link: embedUrl, type: "mp4" }] });
+        }
+      }
+    }
+    
     return { title, synopsis: "", image, imdbId: "", type: "movie", linkList };
   } catch { return { title: "", synopsis: "", image: "", imdbId: "", type: "movie", linkList: [] }; }
 };

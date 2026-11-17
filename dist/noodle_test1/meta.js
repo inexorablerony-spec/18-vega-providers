@@ -75,6 +75,7 @@ const getMeta = function (_a) {
             const title = ((_b = html.match(/<title[^>]*>(.*?)<\/title>/i)) === null || _b === void 0 ? void 0 : _b[1]) || "Noodle Test 1";
             const image = ((_c = html.match(/property=["']og:image["'][^>]*content=["']([^"']+)/i)) === null || _c === void 0 ? void 0 : _c[1]) || "";
             const linkList = [];
+            // Try window.playlist
             const playlist = extractPlaylist(html);
             if (playlist && Array.isArray(playlist.sources)) {
                 for (const source of playlist.sources) {
@@ -82,6 +83,27 @@ const getMeta = function (_a) {
                         const url = resolveUrl(String(source.file));
                         const quality = source.label || "Auto";
                         linkList.push({ title: quality, quality, directLinks: [{ title: quality, link: url, type: url.includes(".m3u8") ? "m3u8" : "mp4" }] });
+                    }
+                }
+            }
+            // Fallback: extract MP4/M3U8 from HTML
+            if (linkList.length === 0) {
+                const mp4Matches = html.match(/https?:\/\/[^"'\s]+\.mp4[^"'\s]*/gi) || [];
+                const m3u8Matches = html.match(/https?:\/\/[^"'\s]+\.m3u8[^"'\s]*/gi) || [];
+                for (const url of [...new Set([...mp4Matches, ...m3u8Matches])]) {
+                    if (!url.includes("preview") && !url.includes("thumb")) {
+                        const quality = url.includes("1080") ? "1080p" : url.includes("720") ? "720p" : url.includes("480") ? "480p" : "Auto";
+                        linkList.push({ title: quality, quality, directLinks: [{ title: quality, link: url, type: url.includes(".m3u8") ? "m3u8" : "mp4" }] });
+                    }
+                }
+            }
+            // Fallback: embed URL
+            if (linkList.length === 0) {
+                const embedMatch = html.match(/embedUrl["']?\s*:\s*["']([^"']+)["']/i);
+                if (embedMatch) {
+                    const embedUrl = embedMatch[1].replace(/\\\//g, "/");
+                    if (embedUrl && !embedUrl.includes("adtng")) {
+                        linkList.push({ title: "Play", quality: "Auto", directLinks: [{ title: "Embed", link: embedUrl, type: "mp4" }] });
                     }
                 }
             }
