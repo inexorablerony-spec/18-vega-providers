@@ -286,5 +286,14 @@
     "type": "global",
     "category": "18+ movie",
     "disabled": false
+  },
+  {
+    "display_name": "Porn00",
+    "value": "porn00",
+    "version": "1.0",
+    "icon": "https://www.porn00.org/favicon.ico",
+    "type": "global",
+    "category": "18+ movie",
+    "disabled": false
   }
 ]
