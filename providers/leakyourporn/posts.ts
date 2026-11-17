@@ -24,7 +24,7 @@ async function parseHtml(html: string, cheerio: any): Promise<Post[]> {
 export async function getPosts({ page = 1, signal, providerContext }: any): Promise<Post[]> {
   try {
     const { axios, cheerio } = providerContext;
-    const url = page > 1 ? `${BASE}/videos?page=${page}` : `${BASE}/videos`;
+    const url = page > 1 ? `${BASE}/?page=${page}` : `${BASE}/`;
     const res = await axios.get(url, { headers: { "User-Agent": UA }, signal, timeout: 25000 });
     return await parseHtml(res.data, cheerio);
   } catch { return []; }

@@ -41,7 +41,7 @@ function getPosts(_a) {
     return __awaiter(this, arguments, void 0, function* ({ page = 1, signal, providerContext }) {
         try {
             const { axios, cheerio } = providerContext;
-            const url = page > 1 ? `${BASE}/videos?page=${page}` : `${BASE}/videos`;
+            const url = page > 1 ? `${BASE}/?page=${page}` : `${BASE}/`;
             const res = yield axios.get(url, { headers: { "User-Agent": UA }, signal, timeout: 25000 });
             return yield parseHtml(res.data, cheerio);
         }
