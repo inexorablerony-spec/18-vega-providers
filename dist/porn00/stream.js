@@ -18,8 +18,9 @@ const getStream = function (_a) {
             return [];
         const streams = [];
         const headers = { "User-Agent": UA, Referer: REFERER };
-        if (/\.mp4(\?|$)/i.test(link)) {
-            streams.push({ server: "Porn00", link, type: "mp4", headers });
+        if (/\.mp4/i.test(link)) {
+            const quality = link.includes("720") ? "720p" : link.includes("1080") ? "1080p" : "Auto";
+            streams.push({ server: `Porn00 ${quality}`, link, type: "mp4", headers });
             return streams;
         }
         try {
