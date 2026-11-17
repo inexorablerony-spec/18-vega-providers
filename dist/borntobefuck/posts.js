@@ -18,17 +18,16 @@ function parseHtml(html, cheerio) {
         const $ = cheerio.load(html || "");
         const posts = [];
         const seen = new Set();
-        $("a[href*='/watch/']").each((_, el) => {
-            const $el = $(el);
-            const link = $el.attr("href");
+        $("img.thumbnail").each((_, el) => {
+            const $img = $(el);
+            const $link = $img.closest("a");
+            const link = $link.attr("href") || "";
             if (!link || !link.includes("/watch/") || seen.has(link))
                 return;
             seen.add(link);
-            const title = $el.attr("title") || $el.find("img").attr("alt") || "Video";
-            let image = $el.find("img").attr("data-src") || $el.find("img").attr("src") || "";
-            if (image && image.startsWith("//"))
-                image = "https:" + image;
-            if (title)
+            const title = $img.attr("title") || $img.attr("alt") || "Video";
+            const image = $img.attr("src") || "";
+            if (title && link)
                 posts.push({ title, link, image });
         });
         return posts;

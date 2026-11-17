@@ -6,15 +6,15 @@ async function parseHtml(html: string, cheerio: any): Promise<Post[]> {
   const $ = cheerio.load(html || "");
   const posts: Post[] = [];
   const seen = new Set<string>();
-  $("a[href*='/watch/']").each((_: any, el: any) => {
-    const $el = $(el);
-    const link = $el.attr("href");
+  $("img.thumbnail").each((_: any, el: any) => {
+    const $img = $(el);
+    const $link = $img.closest("a");
+    const link = $link.attr("href") || "";
     if (!link || !link.includes("/watch/") || seen.has(link)) return;
     seen.add(link);
-    const title = $el.attr("title") || $el.find("img").attr("alt") || "Video";
-    let image = $el.find("img").attr("data-src") || $el.find("img").attr("src") || "";
-    if (image && image.startsWith("//")) image = "https:" + image;
-    if (title) posts.push({ title, link, image });
+    const title = $img.attr("title") || $img.attr("alt") || "Video";
+    const image = $img.attr("src") || "";
+    if (title && link) posts.push({ title, link, image });
   });
   return posts;
 }
