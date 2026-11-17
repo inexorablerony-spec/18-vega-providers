@@ -19,7 +19,6 @@ function parseHtml(html, cheerio) {
         const posts = [];
         const seen = new Set();
         $("a[href*='/videos/']").each((_, el) => {
-            var _a;
             const $el = $(el);
             const link = $el.attr("href");
             if (!link || !link.includes("/videos/") || link.includes("/profile/") || seen.has(link))
@@ -27,16 +26,11 @@ function parseHtml(html, cheerio) {
             const fullLink = link.startsWith("http") ? link : BASE + link;
             seen.add(fullLink);
             const title = $el.attr("title") || $el.find("img").attr("alt") || $el.text().trim() || "Video";
-            let image = $el.find("img").attr("data-src") || $el.find("img").attr("src") || "";
+            let image = $el.find("img").attr("data-original") || $el.find("img").attr("data-src") || $el.find("img").attr("src") || "";
             if (image && image.startsWith("//"))
                 image = "https:" + image;
             if (image && image.startsWith("/"))
                 image = BASE + image;
-            if (!image || image.includes("silhouette")) {
-                const videoId = (_a = link.match(/-(\d+)\.html/)) === null || _a === void 0 ? void 0 : _a[1];
-                if (videoId)
-                    image = `https://cdne-static.youjizz.com/app/1/images/thumbs/${videoId}.jpg`;
-            }
             if (title && title.length > 3)
                 posts.push({ title, link: fullLink, image });
         });
