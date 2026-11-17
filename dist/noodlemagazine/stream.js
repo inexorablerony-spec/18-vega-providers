@@ -11,70 +11,139 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getStream = void 0;
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
-const REFERER = "https://noodlemagazine.tv/";
+const BASE = "https://adult.noodlemagazine.com";
+const REFERER = "https://noodlemagazine.com/";
+function extractPlaylist(html) {
+    const marker = "window.playlist";
+    const start = html.indexOf(marker);
+    if (start === -1)
+        return null;
+    const braceStart = html.indexOf("{", start);
+    if (braceStart === -1)
+        return null;
+    let depth = 0;
+    let inString = false;
+    let escape = false;
+    for (let i = braceStart; i < html.length; i++) {
+        const c = html[i];
+        if (escape) {
+            escape = false;
+            continue;
+        }
+        if (c === "\\") {
+            escape = true;
+            continue;
+        }
+        if (c === '"') {
+            inString = !inString;
+            continue;
+        }
+        if (inString)
+            continue;
+        if (c === "{")
+            depth++;
+        if (c === "}") {
+            depth--;
+            if (depth === 0) {
+                try {
+                    return JSON.parse(html.slice(braceStart, i + 1));
+                }
+                catch (_a) {
+                    return null;
+                }
+            }
+        }
+    }
+    return null;
+}
+function resolveUrl(file) {
+    if (file.startsWith("http"))
+        return file;
+    if (file.startsWith("//"))
+        return "https:" + file;
+    if (file.startsWith("/"))
+        return BASE + file;
+    return BASE + "/" + file;
+}
+function isPreview(url, label) {
+    const l = (url + " " + label).toLowerCase();
+    return l.includes("preview") || l.includes("trailer") || l.includes("thumb");
+}
+function expandHls(url, axios, label) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const out = [];
+        const headers = { "User-Agent": UA, Referer: REFERER };
+        try {
+            const res = yield axios.get(url, { headers, timeout: 15000 });
+            const text = res.data || "";
+            if (!text.includes("#EXT-X-STREAM-INF")) {
+                out.push({ server: `Noodle ${label}`, link: url, type: "m3u8", headers });
+                return out;
+            }
+            const lines = text.split(/\r?\n/);
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                if (!line.startsWith("#EXT-X-STREAM-INF"))
+                    continue;
+                const resMatch = line.match(/RESOLUTION=(\d+)x(\d+)/i);
+                const next = (lines[i + 1] || "").trim();
+                if (!next || next.startsWith("#"))
+                    continue;
+                const variant = next.startsWith("http") ? next : new URL(next, url).toString();
+                const height = resMatch ? resMatch[2] : "";
+                const q = height ? height + "p" : label;
+                out.push({ server: `Noodle ${q}`, link: variant, type: "m3u8", headers });
+            }
+        }
+        catch (_a) { }
+        if (out.length === 0) {
+            out.push({ server: `Noodle ${label}`, link: url, type: "m3u8", headers });
+        }
+        return out;
+    });
+}
 const getStream = function (_a) {
     return __awaiter(this, arguments, void 0, function* ({ link, providerContext }) {
         if (!link)
             return [];
         const streams = [];
-        const headers = { "User-Agent": UA, Referer: REFERER };
-        // Direct MP4/M3U8
-        if (/\.(mp4|m3u8)(\?|$)/i.test(link)) {
-            streams.push({ server: "Noodle", link, type: /\.m3u8/i.test(link) ? "m3u8" : "mp4", headers });
-            return streams;
-        }
+        const seen = new Set();
         try {
             const axios = providerContext === null || providerContext === void 0 ? void 0 : providerContext.axios;
             if (!axios)
                 return [];
-            const res = yield axios.get(link, { headers, timeout: 20000 });
+            const res = yield axios.get(link, { headers: { "User-Agent": UA, Referer: REFERER, Accept: "text/html,application/xhtml+xml" }, timeout: 25000 });
             const html = res.data || "";
-            // 1. Direct MP4/M3U8 in HTML
-            const mp4Matches = html.match(/https?:\/\/[^"'\s]+\.mp4[^"'\s]*/gi) || [];
-            const m3u8Matches = html.match(/https?:\/\/[^"'\s]+\.m3u8[^"'\s]*/gi) || [];
-            for (const url of [...new Set([...mp4Matches, ...m3u8Matches])]) {
-                if (!url.includes("preview") && !url.includes("thumb")) {
-                    streams.push({ server: "Noodle", link: url, type: url.includes(".m3u8") ? "m3u8" : "mp4", headers });
-                }
-            }
-            // 2. Embed URL
-            const embedMatch = html.match(/embedUrl["']?\s*:\s*["']([^"']+)["']/i);
-            if (embedMatch && streams.length === 0) {
-                const embedUrl = embedMatch[1].replace(/\\\//g, "/");
-                if (embedUrl && !embedUrl.includes("adtng")) {
-                    // Return embed URL as stream (player will handle it)
-                    streams.push({ server: "Noodle Embed", link: embedUrl, type: "mp4", headers });
-                    // Also try to extract streams from embed
-                    try {
-                        const embedRes = yield axios.get(embedUrl, { headers, timeout: 15000 });
-                        const embedHtml = embedRes.data || "";
-                        const embedMp4 = embedHtml.match(/https?:\/\/[^"'\s]+\.mp4[^"'\s]*/gi) || [];
-                        const embedM3u8 = embedHtml.match(/https?:\/\/[^"'\s]+\.m3u8[^"'\s]*/gi) || [];
-                        for (const url of [...new Set([...embedMp4, ...embedM3u8])]) {
-                            streams.push({ server: "Noodle", link: url, type: url.includes(".m3u8") ? "m3u8" : "mp4", headers });
-                        }
-                    }
-                    catch (_b) { }
-                }
-            }
-            // 3. window.playlist
-            const playlistMatch = html.match(/window\.playlist\s*=\s*(\{[\s\S]*?\});/);
-            if (playlistMatch && streams.length === 0) {
-                try {
-                    const playlist = JSON.parse(playlistMatch[1]);
-                    if (playlist.sources) {
-                        for (const source of playlist.sources) {
-                            if (source.file) {
-                                const url = source.file.startsWith("//") ? "https:" + source.file : source.file;
-                                streams.push({ server: "Noodle", link: url, type: url.includes(".m3u8") ? "m3u8" : "mp4", headers });
+            const playlist = extractPlaylist(html);
+            if (playlist && Array.isArray(playlist.sources)) {
+                for (const source of playlist.sources) {
+                    const file = source && source.file;
+                    if (!file)
+                        continue;
+                    const url = resolveUrl(String(file));
+                    const label = (source.label && String(source.label)) || "auto";
+                    if (isPreview(url, label))
+                        continue;
+                    if (seen.has(url))
+                        continue;
+                    seen.add(url);
+                    const isHls = source.type === "hls" || /\.m3u8/i.test(url);
+                    if (isHls) {
+                        const variants = yield expandHls(url, axios, label);
+                        for (const v of variants) {
+                            if (!seen.has(v.link)) {
+                                seen.add(v.link);
+                                streams.push(v);
                             }
                         }
                     }
+                    else {
+                        streams.push({ server: `Noodle ${label}`, link: url, type: "mp4", headers: { "User-Agent": UA, Referer: REFERER } });
+                    }
                 }
-                catch (_c) { }
             }
         }
-        catch (_d) { }
+        catch (_b) { }
         return streams;
     });
 };
