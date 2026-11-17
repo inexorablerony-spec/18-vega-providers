@@ -107,6 +107,7 @@ const getStream = function (_a) {
         if (!link)
             return [];
         const streams = [];
+        const seenSources = new Set();
         const seen = new Set();
         try {
             const axios = providerContext === null || providerContext === void 0 ? void 0 : providerContext.axios;
@@ -124,9 +125,9 @@ const getStream = function (_a) {
                     const label = (source.label && String(source.label)) || "auto";
                     if (isPreview(url, label))
                         continue;
-                    if (seen.has(url))
+                    if (seenSources.has(url))
                         continue;
-                    seen.add(url);
+                    seenSources.add(url);
                     const isHls = source.type === "hls" || /\.m3u8/i.test(url);
                     if (isHls) {
                         const variants = yield expandHls(url, axios, label);
@@ -138,7 +139,10 @@ const getStream = function (_a) {
                         }
                     }
                     else {
-                        streams.push({ server: `Noodle ${label}`, link: url, type: "mp4", headers: { "User-Agent": UA, Referer: REFERER } });
+                        if (!seen.has(url)) {
+                            seen.add(url);
+                            streams.push({ server: `Noodle ${label}`, link: url, type: "mp4", headers: { "User-Agent": UA, Referer: REFERER } });
+                        }
                     }
                 }
             }

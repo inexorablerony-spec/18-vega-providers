@@ -69,6 +69,7 @@ async function expandHls(url: string, axios: any, label: string): Promise<Stream
 export const getStream = async function ({ link, providerContext }: { link: string; providerContext?: ProviderContext }): Promise<Stream[]> {
   if (!link) return [];
   const streams: Stream[] = [];
+  const seenSources = new Set<string>();
   const seen = new Set<string>();
   try {
     const axios = providerContext?.axios;
@@ -83,8 +84,8 @@ export const getStream = async function ({ link, providerContext }: { link: stri
         const url = resolveUrl(String(file));
         const label = (source.label && String(source.label)) || "auto";
         if (isPreview(url, label)) continue;
-        if (seen.has(url)) continue;
-        seen.add(url);
+        if (seenSources.has(url)) continue;
+        seenSources.add(url);
         const isHls = source.type === "hls" || /\.m3u8/i.test(url);
         if (isHls) {
           const variants = await expandHls(url, axios, label);
@@ -95,7 +96,10 @@ export const getStream = async function ({ link, providerContext }: { link: stri
             }
           }
         } else {
-          streams.push({ server: `Noodle ${label}`, link: url, type: "mp4", headers: { "User-Agent": UA, Referer: REFERER } });
+          if (!seen.has(url)) {
+            seen.add(url);
+            streams.push({ server: `Noodle ${label}`, link: url, type: "mp4", headers: { "User-Agent": UA, Referer: REFERER } });
+          }
         }
       }
     }
