@@ -28,6 +28,15 @@ const getMeta = function (_a) {
                     linkList.push({ title: "Play", quality: "Auto", directLinks: [{ title: "Play", link: url, type: "mp4" }] });
                 }
             }
+            if (linkList.length === 0) {
+                const embedMatch = html.match(/iframe[^>]+src=["']([^"']+embed[^"']+)["']/i);
+                if (embedMatch) {
+                    const embedUrl = embedMatch[1];
+                    if (embedUrl && !embedUrl.includes("adtng")) {
+                        linkList.push({ title: "Play", quality: "Auto", directLinks: [{ title: "Embed", link: embedUrl, type: "mp4" }] });
+                    }
+                }
+            }
             return { title, synopsis: "", image, imdbId: "", type: "movie", linkList };
         }
         catch (_d) {

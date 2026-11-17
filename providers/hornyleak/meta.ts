@@ -10,12 +10,24 @@ export const getMeta = async function ({ link, providerContext }: { link: string
     const title = html.match(/<title[^>]*>(.*?)<\/title>/i)?.[1] || "HornyLeak";
     const image = html.match(/property=["']og:image["'][^>]*content=["']([^"']+)/i)?.[1] || "";
     const linkList: any[] = [];
+    
     const mp4Matches = html.match(/https?:\/\/[^"'\s]+\.mp4[^"'\s]*/gi) || [];
     for (const url of [...new Set(mp4Matches)] as string[]) {
       if (!url.includes("preview") && !url.includes("thumb")) {
         linkList.push({ title: "Play", quality: "Auto", directLinks: [{ title: "Play", link: url, type: "mp4" }] });
       }
     }
+    
+    if (linkList.length === 0) {
+      const embedMatch = html.match(/iframe[^>]+src=["']([^"']+embed[^"']+)["']/i);
+      if (embedMatch) {
+        const embedUrl = embedMatch[1];
+        if (embedUrl && !embedUrl.includes("adtng")) {
+          linkList.push({ title: "Play", quality: "Auto", directLinks: [{ title: "Embed", link: embedUrl, type: "mp4" }] });
+        }
+      }
+    }
+    
     return { title, synopsis: "", image, imdbId: "", type: "movie", linkList };
   } catch { return { title: "", synopsis: "", image: "", imdbId: "", type: "movie", linkList: [] }; }
 };
