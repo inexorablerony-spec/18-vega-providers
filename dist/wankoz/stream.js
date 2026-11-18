@@ -14,7 +14,21 @@ const getStream = function (_a) {
     return __awaiter(this, arguments, void 0, function* ({ link }) {
         if (!link)
             return [];
-        return [{ server: "wankoz", link: link.replace(/&amp;/g, "&"), type: "mp4", headers: { Referer: "https://www.wankoz.com/", "User-Agent": "Mozilla/5.0" } }];
+        const clean = link.replace(/&amp;/g, "&");
+        if (clean.includes("preview"))
+            return [];
+        // Extract quality from URL
+        let quality = "HD";
+        if (clean.includes("_a.mp4"))
+            quality = "1080p";
+        else if (clean.includes("_s.mp4"))
+            quality = "720p";
+        return [{
+                server: `Wankoz ${quality}`,
+                link: clean,
+                type: "mp4",
+                headers: { Referer: "https://www.wankoz.com/", "User-Agent": "Mozilla/5.0" }
+            }];
     });
 };
 exports.getStream = getStream;
