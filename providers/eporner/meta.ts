@@ -91,13 +91,13 @@ export const getMeta = async function ({
     const params = {
       hash,
       domain: "www.eporner.com",
-      pixelRatio: 1,
+      pixelRatio: 1.5,
       playerWidth: 0,
       playerHeight: 0,
       fallback: false,
       embed: true,
-      supportedFormats: "mp4,webm,hls",
-      _: Date.now(),
+      supportedFormats: "hls,dash,mp4",
+      _: `${Math.floor(Date.now() / 1000)}${Math.floor(100 + Math.random() * 900)}`,
     };
 
     const sourceResponse = await axios.get(
@@ -131,7 +131,7 @@ export const getMeta = async function ({
       : Object.entries(mp4Sources);
 
     const seen = new Set<string>();
-    const directLinks: any[] = [];
+    const linkList: Info["linkList"] = [];
 
     for (const [qualityValue, sourceValue] of entries as [string, any][]) {
       const rawUrl = typeof sourceValue === "string" ? sourceValue : sourceValue?.src || sourceValue?.url || "";
@@ -144,18 +144,10 @@ export const getMeta = async function ({
       seen.add(mediaUrl);
       const quality = String(qualityValue).match(/\d+/) ? `${String(qualityValue).match(/\d+/)?.[0]}p` : String(qualityValue);
 
-      directLinks.push({ title: quality, link: mediaUrl, type: "mp4" });
-    }
-
-    // Sort by quality descending
-    directLinks.sort((a, b) => parseInt(b.title) - parseInt(a.title));
-
-    const linkList: any[] = [];
-    if (directLinks.length > 0) {
       linkList.push({
-        title: "Play",
-        quality: directLinks[0]?.title || "HD",
-        directLinks
+        title: `Play (${quality})`,
+        quality,
+        directLinks: [{ title: "MP4", link: mediaUrl, type: "movie" }],
       });
     }
 
