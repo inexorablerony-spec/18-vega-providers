@@ -11,48 +11,52 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getMeta = void 0;
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
+const REFERER = "https://www.youporn.com/";
 const getMeta = function (_a) {
     return __awaiter(this, arguments, void 0, function* ({ link, providerContext }) {
-        var _b, _c, _d;
+        var _b, _c, _d, _e;
         try {
             const { axios } = providerContext;
-            const res = yield axios.get(link, {
-                headers: { "User-Agent": UA },
-                timeout: 15000
-            });
+            const headers = { "User-Agent": UA, Referer: REFERER };
+            const res = yield axios.get(link, { headers, timeout: 15000 });
             const html = res.data || "";
             const title = ((_c = (_b = html.match(/<title[^>]*>(.*?)<\/title>/i)) === null || _b === void 0 ? void 0 : _b[1]) === null || _c === void 0 ? void 0 : _c.replace(/\s*-\s*YouPorn.*$/i, "").trim()) || "YouPorn";
             const image = ((_d = html.match(/property=["']og:image["'][^>]*content=["']([^"']+)/i)) === null || _d === void 0 ? void 0 : _d[1]) || "";
             const linkList = [];
+            const directLinks = [];
             const mediaMatch = html.match(/mediaDefinitions"\s*:\s*(\[[^\]]+\])/);
             if (mediaMatch) {
                 try {
                     const definitions = JSON.parse(mediaMatch[1].replace(/\\/g, ""));
-                    const directLinks = [];
                     for (const def of definitions) {
-                        if (def.videoUrl) {
-                            const type = def.format === "hls" ? "m3u8" : "mp4";
-                            const label = def.format === "hls" ? "HLS" : "MP4";
-                            directLinks.push({
-                                title: label,
-                                link: def.videoUrl,
-                                type
-                            });
+                        if (def.format === "hls" && def.videoUrl) {
+                            const hlsRes = yield axios.get(def.videoUrl, { headers, timeout: 15000 });
+                            const variants = Array.isArray(hlsRes.data) ? hlsRes.data : [];
+                            for (const v of variants) {
+                                if (v.videoUrl && v.quality) {
+                                    directLinks.push({
+                                        title: `${v.quality}p`,
+                                        link: v.videoUrl,
+                                        type: "m3u8"
+                                    });
+                                }
+                            }
                         }
                     }
-                    if (directLinks.length > 0) {
-                        linkList.push({
-                            title: "Play",
-                            quality: "Auto",
-                            directLinks
-                        });
-                    }
                 }
-                catch (_e) { }
+                catch (_f) { }
+            }
+            if (directLinks.length > 0) {
+                directLinks.sort((a, b) => parseInt(b.title) - parseInt(a.title));
+                linkList.push({
+                    title: "Play",
+                    quality: ((_e = directLinks[0]) === null || _e === void 0 ? void 0 : _e.title) || "Auto",
+                    directLinks
+                });
             }
             return { title, synopsis: "", image, imdbId: "", type: "movie", linkList };
         }
-        catch (_f) {
+        catch (_g) {
             return { title: "", synopsis: "", image: "", imdbId: "", type: "movie", linkList: [] };
         }
     });

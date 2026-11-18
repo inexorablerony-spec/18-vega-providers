@@ -18,12 +18,12 @@ const getStream = function (_a) {
             return [];
         const streams = [];
         const headers = { "User-Agent": UA, Referer: REFERER };
-        if (/\.mp4/i.test(link) && !link.includes("_fb.mp4")) {
-            streams.push({ server: "YouPorn MP4", link, type: "mp4", headers });
-            return streams;
-        }
         if (/\.m3u8/i.test(link)) {
             streams.push({ server: "YouPorn HLS", link, type: "m3u8", headers });
+            return streams;
+        }
+        if (/\.mp4/i.test(link) && !link.includes("_fb.mp4")) {
+            streams.push({ server: "YouPorn MP4", link, type: "mp4", headers });
             return streams;
         }
         try {
@@ -37,15 +37,19 @@ const getStream = function (_a) {
                 try {
                     const definitions = JSON.parse(mediaMatch[1].replace(/\\/g, ""));
                     for (const def of definitions) {
-                        if (def.videoUrl) {
-                            const type = def.format === "hls" ? "m3u8" : "mp4";
-                            const label = def.format === "hls" ? "HLS" : "MP4";
-                            streams.push({
-                                server: `YouPorn ${label}`,
-                                link: def.videoUrl,
-                                type,
-                                headers
-                            });
+                        if (def.format === "hls" && def.videoUrl) {
+                            const hlsRes = yield axios.get(def.videoUrl, { headers, timeout: 15000 });
+                            const variants = Array.isArray(hlsRes.data) ? hlsRes.data : [];
+                            for (const v of variants) {
+                                if (v.videoUrl && v.quality) {
+                                    streams.push({
+                                        server: `YouPorn ${v.quality}p`,
+                                        link: v.videoUrl,
+                                        type: "m3u8",
+                                        headers
+                                    });
+                                }
+                            }
                         }
                     }
                 }
