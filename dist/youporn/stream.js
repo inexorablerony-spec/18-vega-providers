@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getStream = void 0;
-const UA = "Mozilla/5.0";
+const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
 const REFERER = "https://www.youporn.com/";
 const getStream = function (_a) {
     return __awaiter(this, arguments, void 0, function* ({ link, providerContext }) {
@@ -18,8 +18,12 @@ const getStream = function (_a) {
             return [];
         const streams = [];
         const headers = { "User-Agent": UA, Referer: REFERER };
-        if (/\.mp4/i.test(link)) {
-            streams.push({ server: "YouPorn", link, type: "mp4", headers });
+        if (/\.mp4/i.test(link) && !link.includes("_fb.mp4")) {
+            streams.push({ server: "YouPorn MP4", link, type: "mp4", headers });
+            return streams;
+        }
+        if (/\.m3u8/i.test(link)) {
+            streams.push({ server: "YouPorn HLS", link, type: "m3u8", headers });
             return streams;
         }
         try {
@@ -28,12 +32,27 @@ const getStream = function (_a) {
                 return [];
             const res = yield axios.get(link, { headers, timeout: 20000 });
             const html = res.data || "";
-            const matches = html.match(/https?:\/\/ev-ph\.ypncdn\.com[^"'\s]+\.mp4[^"'\s]*/gi) || [];
-            for (const url of [...new Set(matches)]) {
-                streams.push({ server: "YouPorn", link: url, type: "mp4", headers });
+            const mediaMatch = html.match(/mediaDefinitions"\s*:\s*(\[[^\]]+\])/);
+            if (mediaMatch) {
+                try {
+                    const definitions = JSON.parse(mediaMatch[1].replace(/\\/g, ""));
+                    for (const def of definitions) {
+                        if (def.videoUrl) {
+                            const type = def.format === "hls" ? "m3u8" : "mp4";
+                            const label = def.format === "hls" ? "HLS" : "MP4";
+                            streams.push({
+                                server: `YouPorn ${label}`,
+                                link: def.videoUrl,
+                                type,
+                                headers
+                            });
+                        }
+                    }
+                }
+                catch (_b) { }
             }
         }
-        catch (_b) { }
+        catch (_c) { }
         return streams;
     });
 };
