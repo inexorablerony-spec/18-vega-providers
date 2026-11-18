@@ -10,7 +10,7 @@ export const getMeta = async function ({ link, providerContext }: { link: string
     const title = $("h1").first().text().trim() || $("title").text().trim() || "Untitled";
     const image = $('meta[property="og:image"]').attr("content") || "";
     
-    const directLinks: any[] = [];
+    const linkList: any[] = [];
     const seen = new Set<string>();
     
     const mp4s = html.match(/https?:\/\/[^"'\s]*get_file[^"'\s]*\.mp4[^"'\s]*/gi) || [];
@@ -27,15 +27,14 @@ export const getMeta = async function ({ link, providerContext }: { link: string
       if (seen.has(quality)) continue;
       seen.add(quality);
       
-      directLinks.push({ title: quality, link: clean, type: "mp4" });
+      linkList.push({
+        title: quality,
+        quality: quality,
+        directLinks: [{ title: quality, link: clean, type: "mp4" }]
+      });
     }
     
-    directLinks.sort((a, b) => parseInt(b.title) - parseInt(a.title));
-    
-    const linkList: any[] = [];
-    if (directLinks.length > 0) {
-      linkList.push({ title: "Play", quality: directLinks[0]?.title || "HD", directLinks });
-    }
+    linkList.sort((a, b) => parseInt(b.quality) - parseInt(a.quality));
     
     return { title, synopsis: "", image, imdbId: "", type: "movie", linkList };
   } catch { return empty; }
