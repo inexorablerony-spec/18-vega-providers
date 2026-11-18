@@ -153,7 +153,7 @@ exports. getMeta = async function ({
     // Sort by quality descending
     directLinks.sort((a, b) => parseInt(b.title) - parseInt(a.title));
 
-    const linkList[] = [];
+    const linkList = [];
     if (directLinks.length > 0) {
       linkList.push({
         title: "Play",
