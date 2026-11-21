@@ -1,70 +1,63 @@
 import { Post, ProviderContext } from "../types";
+
 const BASE = "https://sxyprn.com";
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
 
-async function getMypornPosts(url: string, axios: any, cheerio: any, signal: any): Promise<Post[]> {
-  const res = await axios.get(url, { headers: { "User-Agent": UA }, signal, timeout: 20000 });
-  const $ = cheerio.load(res.data || "");
+function parsePosts(html: string, cheerio: any): Post[] {
+  const $ = cheerio.load(html || "");
   const posts: Post[] = [];
-  $("a[href*='/t/']").each((_: any, el: any) => {
+  const seen = new Set<string>();
+
+  $("a[href*='/post/']").each((_: any, el: any) => {
     const $el = $(el);
-    const href = $el.attr("href") || "";
-    if (!href.includes("/t/")) return;
-    const title = $el.attr("title") || $el.text().trim() || "Video";
-    const torrentId = href.match(/\/t\/([a-zA-Z0-9]+)/)?.[1] || "";
-    if (torrentId && !posts.find(p => p.link.includes(torrentId))) {
-      posts.push({ title: title.slice(0, 60), link: `https://myporn.club/t/${torrentId}`, image: "" });
-    }
+    let link = ($el.attr("href") || "").split("?")[0];
+    if (!link || !link.includes("/post/")) return;
+    if (link.startsWith("/")) link = BASE + link;
+    if (seen.has(link)) return;
+    seen.add(link);
+
+    const title =
+      $el.attr("aria-label") ||
+      $el.attr("title") ||
+      $el.find(".post_time").attr("title") ||
+      $el.text().trim() ||
+      "Video";
+
+    let image = $el.find("img").attr("data-src") || $el.find("img").attr("src") || "";
+    if (image.startsWith("//")) image = "https:" + image;
+    else if (image.startsWith("/")) image = BASE + image;
+
+    if (title.length > 2) posts.push({ title: title.trim().slice(0, 140), link, image });
   });
-  return posts.slice(0, 20);
+
+  return posts.slice(0, 40);
 }
 
 export async function getPosts({ page = 1, filter, signal, providerContext }: any): Promise<Post[]> {
   try {
     const { axios, cheerio } = providerContext;
-    if (filter === "alltime" || filter === "All-Time Seeders") {
-      return await getMypornPosts("https://myporn.club/ts/seeders/alltime", axios, cheerio, signal);
-    }
-    if (filter === "top" || filter === "Weekly Hits" || filter === "Top Seeded") {
-      return await getMypornPosts("https://myporn.club/ts/hits/week", axios, cheerio, signal);
-    }
-    const url = `${BASE}/trending.html?page=${page || 1}`;
+    const f = (filter || "trending").toLowerCase();
+    const path =
+      f === "new" ? "/new.html" :
+      f === "latest" ? "/latest.html" :
+      f === "popular" ? "/popular.html" :
+      f === "top" ? "/top.html" :
+      "/trending.html";
+    const url = `${BASE}${path}?page=${page || 1}`;
     const res = await axios.get(url, { headers: { "User-Agent": UA }, signal, timeout: 20000 });
-    const $ = cheerio.load(res.data || "");
-    const posts: Post[] = [];
-    $("a[href*='/post/']").each((_: any, el: any) => {
-      const $el = $(el);
-      const link = $el.attr("href");
-      if (!link || !link.includes("/post/")) return;
-      const title = $el.attr("aria-label") || $el.attr("title") || "Video";
-      let image = $el.find("img").attr("data-src") || $el.find("img").attr("src") || "";
-      if (image && image.startsWith("//")) image = "https:" + image;
-      if (image && image.startsWith("/")) image = BASE + image;
-      const fullLink = link.startsWith("http") ? link : BASE + link.split("?")[0];
-      if (!posts.find(p => p.link === fullLink)) {
-        posts.push({ title: title.replace(/\s*video$/i, "").trim(), link: fullLink, image });
-      }
-    });
-    return posts.slice(0, 30);
-  } catch { return []; }
+    return parsePosts(res.data, cheerio);
+  } catch {
+    return [];
+  }
 }
 
 export async function getSearchPosts({ searchQuery, page = 1, signal, providerContext }: any): Promise<Post[]> {
   try {
     const { axios, cheerio } = providerContext;
-    const url = `${BASE}/search.html?q=${encodeURIComponent(searchQuery)}&page=${page}`;
+    const url = `${BASE}/search.html?q=${encodeURIComponent(searchQuery)}&page=${page || 1}`;
     const res = await axios.get(url, { headers: { "User-Agent": UA }, signal, timeout: 20000 });
-    const $ = cheerio.load(res.data || "");
-    const posts: Post[] = [];
-    $("a[href*='/post/']").each((_: any, el: any) => {
-      const $el = $(el);
-      const link = $el.attr("href");
-      if (!link) return;
-      const title = $el.attr("aria-label") || $el.attr("title") || "Result";
-      let image = $el.find("img").attr("data-src") || $el.find("img").attr("src") || "";
-      if (image && image.startsWith("//")) image = "https:" + image;
-      posts.push({ title, link: link.startsWith("http") ? link : BASE + link.split("?")[0], image });
-    });
-    return posts.slice(0, 30);
-  } catch { return []; }
+    return parsePosts(res.data, cheerio);
+  } catch {
+    return [];
+  }
 }

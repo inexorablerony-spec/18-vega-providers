@@ -1,6 +1,8 @@
 export const catalog = [
-  { title: "All-Time Seeders", filter: "alltime" },
-  { title: "Weekly Hits", filter: "top" },
-  { title: "Latest", filter: "" }
+  { title: "Trending", filter: "trending" },
+  { title: "New", filter: "new" },
+  { title: "Latest", filter: "latest" },
+  { title: "Popular", filter: "popular" },
+  { title: "Top", filter: "top" },
 ];
 export const genres = [];
