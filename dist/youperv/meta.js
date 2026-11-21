@@ -22,17 +22,13 @@ const getMeta = function (_a) {
             const title = $("h1").first().text().trim() || $("title").text().trim() || "Untitled";
             const image = $('meta[property="og:image"]').attr("content") || "";
             const directLinks = [];
-            const seen = {};
-            const mp4s = html.match(/https?:\/\/[^"'\s]+\.mp4[^"'\s]*/gi) || [];
-            for (let i = 0; i < mp4s.length; i++) {
-                const clean = mp4s[i].replace(/&amp;/g, "&");
-                if (/preview|thumb|sprite/i.test(clean) || seen[clean]) continue;
-                seen[clean] = true;
-                directLinks.push({ title: "HD", link: clean, type: "mp4" });
+            const srcMatch = html.match(/<source[^>]+src=["']([^"']+\.mp4[^"']*)["']/i);
+            if (srcMatch) {
+                const encoded = srcMatch[1].replace(/ /g, "%20");
+                directLinks.push({ title: "HD", link: encoded, type: "mp4" });
             }
             if (directLinks.length === 0) directLinks.push({ title: "Play", link: link, type: "mp4" });
-            const linkList = [{ title: "Play", quality: "HD", directLinks: directLinks }];
-            return { title: title, synopsis: "", image: image, imdbId: "", type: "movie", linkList: linkList };
+            return { title: title, synopsis: "", image: image, imdbId: "", type: "movie", linkList: [{ title: "Play", quality: "HD", directLinks: directLinks }] };
         } catch (e) { return empty; }
     });
 };
