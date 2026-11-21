@@ -16,23 +16,25 @@ const getMeta = function (_a) {
         try {
             const axios = providerContext.axios;
             const cheerio = providerContext.cheerio;
-            const res = yield axios.get(link, { headers: { "User-Agent": "Mozilla/5.0", Referer: "https://freshporno.com/" }, timeout: 20000 });
+            const res = yield axios.get(link, { headers: { "User-Agent": "Mozilla/5.0", Referer: "https://freshporno.org/" }, timeout: 20000 });
             const html = String(res.data || "");
             const $ = cheerio.load(html);
             const title = $("h1").first().text().trim() || $("title").text().trim() || "Untitled";
             const image = $('meta[property="og:image"]').attr("content") || "";
             const directLinks = [];
             const seen = {};
-            const mp4s = html.match(/https?:\/\/[^"'\s]+\.mp4[^"'\s]*/gi) || [];
-            for (let i = 0; i < mp4s.length; i++) {
-                const clean = mp4s[i].replace(/&amp;/g, "&");
-                if (/preview|thumb|sprite/i.test(clean) || seen[clean]) continue;
+            const matches = html.match(/https?:\/\/[^"'\s]*get_file[^"'\s]*\.mp4[^"'\s]*/gi) || [];
+            for (let i = 0; i < matches.length; i++) {
+                const clean = matches[i].replace(/&amp;/g, "&").replace(/\/$/, "");
+                if (/preview|thumb/i.test(clean) || seen[clean]) continue;
                 seen[clean] = true;
-                directLinks.push({ title: "HD", link: clean, type: "mp4" });
+                const qm = clean.match(/_(\d+p)\.mp4/i);
+                const q = qm ? qm[1] : "480p";
+                directLinks.push({ title: q, link: clean, type: "mp4" });
             }
+            directLinks.sort(function (a, b) { return parseInt(b.title) - parseInt(a.title); });
             if (directLinks.length === 0) directLinks.push({ title: "Play", link: link, type: "mp4" });
-            const linkList = [{ title: "Play", quality: "HD", directLinks: directLinks }];
-            return { title: title, synopsis: "", image: image, imdbId: "", type: "movie", linkList: linkList };
+            return { title: title, synopsis: "", image: image, imdbId: "", type: "movie", linkList: [{ title: "Play", quality: (directLinks[0] && directLinks[0].title) || "HD", directLinks: directLinks }] };
         } catch (e) { return empty; }
     });
 };

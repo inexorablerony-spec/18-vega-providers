@@ -13,7 +13,7 @@ exports.getStream = void 0;
 const getStream = function (_a) {
     return __awaiter(this, arguments, void 0, function* ({ link }) {
         if (!link) return [];
-        return [{ server: "FreshPorno", link: link, type: "mp4", headers: { Referer: "https://freshporno.com/", "User-Agent": "Mozilla/5.0" } }];
+        return [{ server: "FreshPorno", link: link, type: "mp4", headers: { Referer: "https://freshporno.org/", "User-Agent": "Mozilla/5.0" } }];
     });
 };
 exports.getStream = getStream;
