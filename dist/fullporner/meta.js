@@ -11,6 +11,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getMeta = void 0;
 const QUALITY = { 1: "360", 2: "480", 4: "720", 8: "1080" };
+function follow(url, axios) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const res = yield axios.get(url, {
+                headers: { "User-Agent": "Mozilla/5.0", Referer: "https://fullporner.com/" },
+                maxRedirects: 5,
+                timeout: 10000,
+            });
+            return (res.request && res.request.res && res.request.res.responseUrl) || (res.config && res.config.url) || url;
+        } catch (e) { return url; }
+    });
+}
 const getMeta = function (_a) {
     return __awaiter(this, arguments, void 0, function* ({ link, providerContext }) {
         const empty = { title: "Untitled", synopsis: "", image: "", imdbId: "", type: "movie", linkList: [] };
@@ -33,7 +45,9 @@ const getMeta = function (_a) {
                 for (let i = 0; i < bits.length; i++) {
                     if (mask & bits[i]) {
                         const q = QUALITY[bits[i]];
-                        directLinks.push({ title: q + "p", link: "https://xiaoshenke.net/vid/" + mediaId + "/" + q, type: "mp4" });
+                        const raw = "https://xiaoshenke.net/vid/" + mediaId + "/" + q;
+                        const final = yield follow(raw, axios);
+                        directLinks.push({ title: q + "p", link: final, type: "mp4" });
                     }
                 }
             }
