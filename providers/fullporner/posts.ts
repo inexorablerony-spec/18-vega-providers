@@ -7,23 +7,19 @@ function parse(html: string, cheerio: any): Post[] {
   const $ = cheerio.load(html || "");
   const posts: Post[] = [];
   const seen = new Set<string>();
-
   $(".video-card").each((_: any, el: any) => {
     const $card = $(el);
-    const $link = $card.find("a[href^='/watch/']").first();
-    let link = ($link.attr("href") || "").split("?")[0];
+    const $a = $card.find("a[href^='/watch/']").first();
+    let link = ($a.attr("href") || "").split("?")[0];
     if (!link) return;
     link = BASE + link;
     if (seen.has(link)) return;
     seen.add(link);
-
-    const title = $link.find("img").attr("alt") || $card.find(".video-title a").text().trim() || "Video";
-    let image = $link.find("img").attr("data-src") || $link.find("img").attr("src") || "";
+    const title = $a.find("img").attr("alt") || $card.find(".video-title").text().trim() || "Video";
+    let image = $a.find("img").attr("data-src") || $a.find("img").attr("src") || "";
     if (image.startsWith("//")) image = "https:" + image;
-
     if (title.length > 2) posts.push({ title: title.trim().slice(0, 140), link, image });
   });
-
   return posts.slice(0, 40);
 }
 
