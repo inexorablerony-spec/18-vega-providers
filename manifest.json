@@ -294,5 +294,29 @@
     "icon": "https://sxyprn.com/favicon.ico",
     "type": "global",
     "category": "18+ movie"
+  },
+  {
+    "display_name": "PornTrex",
+    "value": "porntrex",
+    "version": "1.0",
+    "icon": "",
+    "type": "global",
+    "category": "18+ movie"
+  },
+  {
+    "display_name": "xHamster",
+    "value": "xhamster",
+    "version": "1.0",
+    "icon": "",
+    "type": "global",
+    "category": "18+ movie"
+  },
+  {
+    "display_name": "FpoXxx",
+    "value": "fpoxxx",
+    "version": "1.0",
+    "icon": "",
+    "type": "global",
+    "category": "18+ movie"
   }
 ]
