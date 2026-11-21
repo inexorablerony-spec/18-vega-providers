@@ -2,8 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.genres = exports.catalog = void 0;
 exports.catalog = [
-    { title: "All-Time Seeders", filter: "alltime" },
-    { title: "Weekly Hits", filter: "top" },
-    { title: "Latest", filter: "" }
+    { title: "Trending", filter: "trending" },
+    { title: "New", filter: "new" },
+    { title: "Latest", filter: "latest" },
+    { title: "Popular", filter: "popular" },
 ];
 exports.genres = [];
