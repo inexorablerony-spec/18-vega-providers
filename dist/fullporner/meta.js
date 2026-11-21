@@ -31,15 +31,14 @@ const getMeta = function (_a) {
                 const mask = parseInt(m[2], 10);
                 const bits = [8, 4, 2, 1];
                 for (let i = 0; i < bits.length; i++) {
-                    const bit = bits[i];
-                    if (mask & bit) {
-                        const q = QUALITY[bit];
+                    if (mask & bits[i]) {
+                        const q = QUALITY[bits[i]];
                         directLinks.push({ title: q + "p", link: "https://xiaoshenke.net/vid/" + mediaId + "/" + q, type: "mp4" });
                     }
                 }
             }
             if (directLinks.length === 0) directLinks.push({ title: "Play", link: link, type: "mp4" });
-            const linkList = [{ title: "Play", quality: directLinks[0].title, directLinks: directLinks }];
+            const linkList = [{ title: "Play", quality: (directLinks[0] && directLinks[0].title) || "HD", directLinks: directLinks }];
             return { title: title, synopsis: "", image: image, imdbId: "", type: "movie", linkList: linkList };
         } catch (e) { return empty; }
     });
