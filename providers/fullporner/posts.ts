@@ -1,4 +1,5 @@
 import { Post, ProviderContext } from "../types";
+
 const BASE = "https://fullporner.com";
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
 
@@ -6,33 +7,39 @@ function parse(html: string, cheerio: any): Post[] {
   const $ = cheerio.load(html || "");
   const posts: Post[] = [];
   const seen = new Set<string>();
-  $("a[href^='/watch/']").each((_: any, el: any) => {
-    const $el = $(el);
-    let link = ($el.attr("href") || "").split("?")[0];
-    if (!link || !link.startsWith("/watch/")) return;
+
+  $(".video-card").each((_: any, el: any) => {
+    const $card = $(el);
+    const $link = $card.find("a[href^='/watch/']").first();
+    let link = ($link.attr("href") || "").split("?")[0];
+    if (!link) return;
     link = BASE + link;
     if (seen.has(link)) return;
     seen.add(link);
-    const title = $el.attr("alt") || $el.find("img").attr("alt") || $el.text().trim() || "Video";
-    let image = $el.find("img").attr("data-src") || $el.find("img").attr("src") || "";
+
+    const title = $link.find("img").attr("alt") || $card.find(".video-title a").text().trim() || "Video";
+    let image = $link.find("img").attr("data-src") || $link.find("img").attr("src") || "";
     if (image.startsWith("//")) image = "https:" + image;
+
     if (title.length > 2) posts.push({ title: title.trim().slice(0, 140), link, image });
   });
+
   return posts.slice(0, 40);
 }
 
 export async function getPosts({ page = 1, signal, providerContext }: any): Promise<Post[]> {
   try {
     const { axios, cheerio } = providerContext;
-    const url = page > 1 ? BASE + "/home/" + page : BASE + "/";
+    const url = page > 1 ? `${BASE}/home/${page}` : `${BASE}/`;
     const res = await axios.get(url, { headers: { "User-Agent": UA, Referer: BASE + "/" }, signal, timeout: 20000 });
     return parse(res.data, cheerio);
   } catch { return []; }
 }
+
 export async function getSearchPosts({ searchQuery, signal, providerContext }: any): Promise<Post[]> {
   try {
     const { axios, cheerio } = providerContext;
-    const url = BASE + "/search?q=" + encodeURIComponent(searchQuery);
+    const url = `${BASE}/search?q=${encodeURIComponent(searchQuery)}`;
     const res = await axios.get(url, { headers: { "User-Agent": UA, Referer: BASE + "/" }, signal, timeout: 20000 });
     return parse(res.data, cheerio);
   } catch { return []; }
