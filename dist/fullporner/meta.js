@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getMeta = void 0;
+const QUALITY = { 1: "360", 2: "480", 4: "720", 8: "1080" };
 const getMeta = function (_a) {
     return __awaiter(this, arguments, void 0, function* ({ link, providerContext }) {
         const empty = { title: "Untitled", synopsis: "", image: "", imdbId: "", type: "movie", linkList: [] };
@@ -22,16 +23,23 @@ const getMeta = function (_a) {
             const title = $("h1").first().text().trim() || $("title").text().trim() || "Untitled";
             const image = $('meta[property="og:image"]').attr("content") || "";
             const directLinks = [];
-            const seen = {};
-            const mp4s = html.match(/https?:\/\/[^"'\s]+\.mp4[^"'\s]*/gi) || [];
-            for (let i = 0; i < mp4s.length; i++) {
-                const clean = mp4s[i].replace(/&amp;/g, "&");
-                if (/preview|thumb|sprite/i.test(clean) || seen[clean]) continue;
-                seen[clean] = true;
-                directLinks.push({ title: "HD", link: clean, type: "mp4" });
+            const iframeMatch = html.match(/iframe[^>]+src=["']([^"']+)["']/i);
+            const iframe = iframeMatch ? iframeMatch[1] : "";
+            const m = iframe.match(/\/(?:video|player)\/([a-z0-9]+)\/(\d+)/i);
+            if (m) {
+                const mediaId = m[1].split("").reverse().join("");
+                const mask = parseInt(m[2], 10);
+                const bits = [8, 4, 2, 1];
+                for (let i = 0; i < bits.length; i++) {
+                    const bit = bits[i];
+                    if (mask & bit) {
+                        const q = QUALITY[bit];
+                        directLinks.push({ title: q + "p", link: "https://xiaoshenke.net/vid/" + mediaId + "/" + q, type: "mp4" });
+                    }
+                }
             }
             if (directLinks.length === 0) directLinks.push({ title: "Play", link: link, type: "mp4" });
-            const linkList = [{ title: "Play", quality: "HD", directLinks: directLinks }];
+            const linkList = [{ title: "Play", quality: directLinks[0].title, directLinks: directLinks }];
             return { title: title, synopsis: "", image: image, imdbId: "", type: "movie", linkList: linkList };
         } catch (e) { return empty; }
     });
