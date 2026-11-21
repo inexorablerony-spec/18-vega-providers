@@ -5,12 +5,27 @@ const BASE = "https://sxyprn.com";
 function ssut51(s) {
     return [...s].reduce((sum, c) => (c >= "0" && c <= "9" ? sum + Number(c) : sum), 0);
 }
+function base64url(str) {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    let out = "";
+    let i = 0;
+    const bytes = new TextEncoder().encode(str);
+    while (i < bytes.length) {
+        const b1 = bytes[i++] || 0;
+        const b2 = bytes[i++] || 0;
+        const b3 = bytes[i++] || 0;
+        const n = (b1 << 16) | (b2 << 8) | b3;
+        out += chars[(n >> 18) & 63];
+        out += chars[(n >> 12) & 63];
+        out += (i - 1 > bytes.length) ? "=" : chars[(n >> 6) & 63];
+        out += (i > bytes.length) ? "=" : chars[n & 63];
+    }
+    const pad = (3 - (bytes.length % 3)) % 3;
+    if (pad) out = out.slice(0, -pad) + "=".repeat(pad);
+    return out.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, ".");
+}
 function boo(ss, es) {
-    const raw = `${ss}-sxyprn.com-${es}`;
-    let b64;
-    try { b64 = Buffer.from(raw).toString("base64"); }
-    catch { b64 = btoa(raw); }
-    return b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, ".");
+    return base64url(`${ss}-sxyprn.com-${es}`);
 }
 const getStream = async function ({ link, providerContext }) {
     if (!link) return [];
@@ -19,7 +34,7 @@ const getStream = async function ({ link, providerContext }) {
         if (!axios) return [];
         const res = await axios.get(link, {
             headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36", Referer: BASE + "/" },
-            timeout: 20000,
+            timeout: 25000,
         });
         const html = String(res.data || "");
         const m = html.match(/data-vnfo='([^']+)'/);
