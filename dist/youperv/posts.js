@@ -16,15 +16,15 @@ function parse(html, cheerio) {
     const $ = cheerio.load(html || "");
     const posts = [];
     const seen = {};
-    $("a[href*='.html']").each(function (_, el) {
+    $(".item-link, a[href*='.html']").each(function (_, el) {
         const $el = $(el);
         let link = ($el.attr("href") || "").split("?")[0];
-        if (!link || !/\d{7,}/.test(link)) return;
+        if (!link || !/\d{7,}/.test(link) || link.indexOf("/top-") >= 0) return;
         if (link.indexOf("/") === 0) link = BASE + link;
         if (seen[link]) return;
         seen[link] = true;
-        const title = $el.attr("title") || $el.find("img").attr("alt") || $el.text().trim() || "Video";
-        let image = $el.find("img").attr("data-src") || $el.find("img").attr("src") || "";
+        const title = $el.attr("title") || $el.find(".item-title").text().trim() || $el.find("img").attr("alt") || $el.text().trim() || "Video";
+        let image = $el.find("img").attr("data-src") || $el.find("img").attr("src") || $el.closest(".item").find("img").attr("src") || "";
         if (image.indexOf("//") === 0) image = "https:" + image;
         else if (image.indexOf("/") === 0) image = BASE + image;
         if (title.length > 2) posts.push({ title: title.trim().slice(0, 140), link: link, image: image });
@@ -37,11 +37,21 @@ const getPosts = function (_a) {
             const axios = providerContext.axios;
             const cheerio = providerContext.cheerio;
             const url = BASE + (page > 1 ? "/page/" + page + "/" : "/");
-            const res = yield axios.get(url, { headers: { "User-Agent": UA }, signal: signal, timeout: 20000 });
+            const res = yield axios.get(url, { headers: { "User-Agent": UA, Referer: BASE + "/" }, signal: signal, timeout: 20000 });
             return parse(res.data, cheerio);
         } catch (e) { return []; }
     });
 };
 exports.getPosts = getPosts;
-const getSearchPosts = function () { return __awaiter(this, arguments, void 0, function* () { return []; }); };
+const getSearchPosts = function (_a) {
+    return __awaiter(this, arguments, void 0, function* ({ searchQuery, signal, providerContext }) {
+        try {
+            const axios = providerContext.axios;
+            const cheerio = providerContext.cheerio;
+            const url = BASE + "/search/" + encodeURIComponent(searchQuery).replace(/%20/g, "-") + ".html";
+            const res = yield axios.get(url, { headers: { "User-Agent": UA, Referer: BASE + "/" }, signal: signal, timeout: 20000 });
+            return parse(res.data, cheerio);
+        } catch (e) { return []; }
+    });
+};
 exports.getSearchPosts = getSearchPosts;
