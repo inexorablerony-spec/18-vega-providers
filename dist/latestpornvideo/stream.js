@@ -13,7 +13,8 @@ exports.getStream = void 0;
 const getStream = function (_a) {
     return __awaiter(this, arguments, void 0, function* ({ link }) {
         if (!link) return [];
-        return [{ server: "LatestPornVideo", link: link, type: "mp4", headers: { Referer: "https://latestpornvideo.com/", "User-Agent": "Mozilla/5.0" } }];
+        const type = link.indexOf(".m3u8") >= 0 ? "m3u8" : "mp4";
+        return [{ server: "LatestPornVideo", link: link, type: type, headers: { Referer: "https://lulustream.com/", "User-Agent": "Mozilla/5.0" } }];
     });
 };
 exports.getStream = getStream;
