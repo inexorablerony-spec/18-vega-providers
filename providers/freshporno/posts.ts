@@ -1,15 +1,15 @@
 import { Post, ProviderContext } from "../types";
-const BASE = "https://freshporno.com";
+const BASE = "https://freshporno.org";
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
 
 function parse(html: string, cheerio: any): Post[] {
   const $ = cheerio.load(html || "");
   const posts: Post[] = [];
   const seen = new Set<string>();
-  $("a[href*='/video/'], a[href*='/videos/']").each((_: any, el: any) => {
+  $("a[href*='/videos/']").each((_: any, el: any) => {
     const $el = $(el);
     let link = ($el.attr("href") || "").split("?")[0];
-    if (!link || (!link.includes("/video/") && !link.includes("/videos/"))) return;
+    if (!link || !link.includes("/videos/")) return;
     if (link.startsWith("/")) link = BASE + link;
     if (seen.has(link)) return;
     seen.add(link);
@@ -25,12 +25,11 @@ function parse(html: string, cheerio: any): Post[] {
 export async function getPosts({ page = 1, signal, providerContext }: any): Promise<Post[]> {
   try {
     const { axios, cheerio } = providerContext;
-    const url = BASE + (page > 1 ? "/latest-updates/" + page + "/" : "/");
+    const url = BASE + (page > 1 ? "/page/" + page + "/" : "/");
     const res = await axios.get(url, { headers: { "User-Agent": UA, Referer: BASE + "/" }, signal, timeout: 20000 });
     return parse(res.data, cheerio);
   } catch { return []; }
 }
-
 export async function getSearchPosts({ searchQuery, page = 1, signal, providerContext }: any): Promise<Post[]> {
   try {
     const { axios, cheerio } = providerContext;
