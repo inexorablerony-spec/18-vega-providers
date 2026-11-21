@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getMeta = void 0;
 const getMeta = function (_a) {
     return __awaiter(this, arguments, void 0, function* ({ link, providerContext }) {
-        const empty = { title: "", synopsis: "", image: "", imdbId: "", type: "movie", linkList: [] };
+        const empty = { title: "Untitled", synopsis: "", image: "", imdbId: "", type: "movie", linkList: [] };
         try {
             const axios = providerContext.axios;
             const cheerio = providerContext.cheerio;
@@ -26,8 +26,8 @@ const getMeta = function (_a) {
             });
             const html = String(res.data || "").replace(/\\\//g, "/");
             const $ = cheerio.load(html);
-            const title = $("h1").first().text().trim() || $('meta[property="og:title"]').attr("content") || $("title").text().trim() || "Untitled";
-            const image = $('meta[property="og:image"]').attr("content") || "";
+            const title = String($("h1").first().text() || $('meta[property="og:title"]').attr("content") || $("title").text() || "Untitled").trim();
+            const image = String($('meta[property="og:image"]').attr("content") || "");
             const directLinks = [];
             const m3u8 = html.match(/https:\/\/[a-z0-9.\-]*xhcdn\.com\/[^"'\s]+?\.m3u8/gi) || [];
             for (let i = 0; i < m3u8.length; i++) {
@@ -41,7 +41,10 @@ const getMeta = function (_a) {
                     directLinks.push({ title: "MP4", link: u, type: "mp4" });
                 }
             }
-            const linkList = directLinks.length ? [{ title: "Play", quality: directLinks[0].title, directLinks: directLinks }] : [];
+            if (directLinks.length === 0) {
+                directLinks.push({ title: "Play", link: link, type: "mp4" });
+            }
+            const linkList = [{ title: "Play", quality: directLinks[0].title || "HD", directLinks: directLinks }];
             return { title: title, synopsis: "", image: image, imdbId: "", type: "movie", linkList: linkList };
         } catch (e) { return empty; }
     });

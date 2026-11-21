@@ -1,7 +1,7 @@
 import { Info, ProviderContext } from "../types";
 
 export const getMeta = async function ({ link, providerContext }: { link: string; providerContext: ProviderContext }): Promise<Info> {
-  const empty: Info = { title: "", synopsis: "", image: "", imdbId: "", type: "movie", linkList: [] };
+  const empty: Info = { title: "Untitled", synopsis: "", image: "", imdbId: "", type: "movie", linkList: [] };
   try {
     const { axios, cheerio } = providerContext;
     const res = await axios.get(link, {
@@ -14,8 +14,8 @@ export const getMeta = async function ({ link, providerContext }: { link: string
     });
     const html = String(res.data || "").replace(/\\\//g, "/");
     const $ = cheerio.load(html);
-    const title = $("h1").first().text().trim() || $('meta[property="og:title"]').attr("content") || $("title").text().trim() || "Untitled";
-    const image = $('meta[property="og:image"]').attr("content") || "";
+    const title = String($("h1").first().text() || $('meta[property="og:title"]').attr("content") || $("title").text() || "Untitled").trim();
+    const image = String($('meta[property="og:image"]').attr("content") || "");
 
     const directLinks: any[] = [];
     const m3u8 = html.match(/https:\/\/[a-z0-9.\-]*xhcdn\.com\/[^"'\s]+?\.m3u8/gi) || [];
@@ -29,7 +29,12 @@ export const getMeta = async function ({ link, providerContext }: { link: string
       }
     }
 
-    const linkList = directLinks.length ? [{ title: "Play", quality: directLinks[0].title, directLinks }] : [];
+    // Always return at least one entry so the app accepts the metadata
+    if (directLinks.length === 0) {
+      directLinks.push({ title: "Play", link, type: "mp4" });
+    }
+
+    const linkList = [{ title: "Play", quality: directLinks[0].title || "HD", directLinks }];
     return { title, synopsis: "", image, imdbId: "", type: "movie", linkList };
   } catch {
     return empty;
