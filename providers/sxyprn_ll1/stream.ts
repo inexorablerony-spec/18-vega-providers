@@ -8,11 +8,14 @@ function ssut51(s: string): number {
 
 function boo(ss: number, es: number): string {
   const raw = `${ss}-sxyprn.com-${es}`;
-  return Buffer.from(raw)
-    .toString("base64")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=/g, ".");
+  // Use btoa-like for browser; in Node/Vega context Buffer may exist, fall back to manual
+  let b64: string;
+  try {
+    b64 = Buffer.from(raw).toString("base64");
+  } catch {
+    b64 = btoa(raw);
+  }
+  return b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, ".");
 }
 
 export const getStream = async function ({

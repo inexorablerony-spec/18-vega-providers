@@ -16,11 +16,16 @@ export const getMeta = async function ({
     });
     const html = String(res.data || "");
     const $ = cheerio.load(html);
-    const title = $("title").text().replace(/ - sxyprn.*/i, "").trim() || "Untitled";
-    const image = $('meta[property="og:image"]').attr("content") || $("img").first().attr("src") || "";
+    const title = $("title").text().replace(/ on the SexyPorn.*/i, "").replace(/ - sxyprn.*/i, "").trim() || "Untitled";
+    const image = $('meta[property="og:image"]').attr("content") || $("img[data-src]").first().attr("data-src") || "";
 
-    // Streams are resolved in getStream via data-vnfo
-    const linkList = [{ title: "Play", quality: "HD", directLinks: [{ title: "MP4", link, type: "mp4" }] }];
+    const linkList = [
+      {
+        title: "Play",
+        quality: "HD",
+        directLinks: [{ title: "MP4", link, type: "mp4" }],
+      },
+    ];
 
     return { title, synopsis: "", image, imdbId: "", type: "movie", linkList };
   } catch {
